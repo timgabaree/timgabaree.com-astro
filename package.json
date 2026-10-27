@@ -4,13 +4,18 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "astro check",
+    "check": "astro check && tsc -p worker/tsconfig.json",
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build && npm run build:php",
-    "build:php": "node scripts/copy-php-endpoint.mjs",
-    "preview": "npm run preview:php",
-    "preview:php": "php -S 127.0.0.1:8765 -t dist scripts/preview-router.php",
+    "build": "astro build && node scripts/prepare-cloudflare.mjs",
+    "build:staging": "PUBLIC_SITE_ENV=staging npm run build",
+    "build:legacy-php": "astro build && node scripts/copy-php-endpoint.mjs",
+    "preview": "wrangler dev --ip 127.0.0.1 --port 8787 --var ENVIRONMENT:local --var CONTACT_MODE:dry-run",
+    "preview:legacy-php": "php -S 127.0.0.1:8765 -t dist scripts/preview-router.php",
+    "test": "node --test tests/*.test.mjs",
+    "test:integration": "node scripts/test-cloudflare.mjs",
+    "test:staging": "node scripts/test-staging.mjs",
+    "deploy:staging": "npm run check && npm test && npm run build:staging && npm run test:integration && wrangler deploy",
     "astro": "astro"
   },
   "dependencies": {
@@ -18,7 +23,9 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
-    "typescript": "^6.0.3"
+    "@cloudflare/workers-types": "^5.20261027.1",
+    "typescript": "^6.0.3",
+    "wrangler": "^4.154.0"
   },
   "engines": {
     "node": ">=22.23.4"

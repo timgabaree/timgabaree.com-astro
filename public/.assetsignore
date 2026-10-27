@@ -1,0 +1,13 @@
+# Defense in depth if someone bypasses the normal Cloudflare build command.
+**/*.php
+**/.htaccess
+**/.DS_Store
+**/_notes/**
+includes/**
+server-php/**
+src/**
+worker/**
+scripts/**
+node_modules/**
+tmp/**
+**/error_log

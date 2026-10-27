@@ -14,6 +14,7 @@
     'security-error': 'Your form session could not be verified. Please reload this page and try again.',
     'rate-limited': 'Please wait a few minutes before submitting another message.',
     'send-error': 'The message could not be sent. Please email tim@timgabaree.com directly.',
+    'test-success': 'Staging test passed. Your message was validated, but no email was sent or saved.',
   };
 
   function showStatus(message) {
@@ -69,6 +70,9 @@
       }
 
       tokenField.value = payload.csrf_token;
+      if (payload.test_mode === true && !requestedStatus) {
+        showStatus('Staging test mode: submissions are validated, but no email is sent or saved.');
+      }
       submitButton.disabled = false;
       form.removeAttribute('aria-busy');
     })

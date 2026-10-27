@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+const isStaging = import.meta.env.PUBLIC_SITE_ENV !== 'production';
 
 const structuredData = {"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://timgabaree.com/#website","url":"https://timgabaree.com/","name":"Tim Gabaree","description":"CIO and technology executive focused on AI strategy and enablement, cybersecurity, enterprise technology, infrastructure and operations, and technology value creation.","inLanguage":"en-US"},{"@type":"WebPage","@id":"https://timgabaree.com/privacy#webpage","url":"https://timgabaree.com/privacy","name":"Privacy Policy | Tim Gabaree","description":"Privacy Policy for timgabaree.com explaining what information may be collected, how it is used, and the privacy choices available to website visitors.","inLanguage":"en-US","datePublished":"2026-08-07T00:00:00-05:00","dateModified":"2026-08-20T00:00:00-05:00","isPartOf":{"@id":"https://timgabaree.com/#website"},"about":{"@id":"https://timgabaree.com/#person"}},{"@type":"Person","@id":"https://timgabaree.com/#person","name":"Tim Gabaree","givenName":"Tim","familyName":"Gabaree","url":"https://timgabaree.com/","image":{"@id":"https://timgabaree.com/#primaryimage"},"jobTitle":"CIO and Technology Executive","description":"CIO and technology executive focused on AI strategy and enablement, cybersecurity, enterprise technology, infrastructure and operations, and technology value creation.","email":"mailto:tim@timgabaree.com","telephone":"+1-571-762-3769","sameAs":["https://www.linkedin.com/in/timgabaree","https://github.com/timgabaree","https://timgabaree.blogspot.com","https://x.com/timgabaree","https://bsky.app/profile/timgabaree.bsky.social"],"spouse":{"@type":"Person","@id":"https://carriegabaree.com/#person","name":"Carrie Gabaree","url":"https://carriegabaree.com/","sameAs":["https://www.linkedin.com/in/carriegabaree"]},"affiliation":{"@type":"Organization","name":"RGE Solutions LLC","url":"https://rgesol.com/"},"memberOf":[{"@type":"Organization","name":"Private Directors Association"},{"@type":"Organization","name":"IEEE"},{"@type":"Organization","name":"ISC2"},{"@type":"Organization","name":"Project Management Institute"}],"alumniOf":[{"@type":"CollegeOrUniversity","name":"Purdue University Global"},{"@type":"CollegeOrUniversity","name":"University of Illinois Springfield"}],"hasCredential":[{"@type":"EducationalOccupationalCredential","name":"Master of Business Administration"},{"@type":"EducationalOccupationalCredential","name":"Certified Information Systems Security Professional"},{"@type":"EducationalOccupationalCredential","name":"Project Management Professional"},{"@type":"EducationalOccupationalCredential","name":"Wharton Corporate Governance Certificate"}],"knowsAbout":["AI Strategy and Enablement","Artificial Intelligence","Cybersecurity","Enterprise Technology","Infrastructure and Operations","Technology Value Creation","Enterprise Performance","Technology Strategy","Technology Investment","Technology Modernization","Enterprise Architecture","Cloud Computing","Vendor Rationalization","Post-Acquisition Integration","Program Recovery","Operating Model Improvement","Digital Transformation"],"knowsLanguage":["en"]}]};
 ---
@@ -36,6 +37,20 @@ const structuredData = {"@context":"https://schema.org","@graph":[{"@type":"WebS
             <h1 id="privacy-title">
                 Privacy Policy
             </h1>
+
+            {isStaging && <aside aria-label="Staging privacy notice">
+                <h2>Staging site notice</h2>
+                <p>This password-protected test site runs on Cloudflare, separately
+                from the live PHP website. Analytics are disabled. When email is
+                enabled, contact details and messages pass through Cloudflare and
+                Resend to Tim Gabaree’s mailbox. Resend and the receiving email
+                service may retain messages and delivery records. Email open and
+                click tracking are not configured. Please use test information only.</p>
+                <p>The site’s contact handler does not persist message bodies.
+                It keeps short-lived security tokens and rate-limit state. The
+                policy below was migrated from the live site and remains subject
+                to review before production launch.</p>
+            </aside>}
 
             <p class="privacy-updated">
                 Last Updated:

@@ -32,7 +32,8 @@ const {
 } = Astro.props;
 
 const meta = pageMetadata[page as keyof typeof pageMetadata];
-const enableAnalytics = import.meta.env.PROD;
+const isStaging = import.meta.env.PUBLIC_SITE_ENV !== 'production';
+const enableAnalytics = import.meta.env.PROD && !isStaging;
 const siteUrl = 'https://timgabaree.com';
 const canonicalUrl = new URL(canonicalPath, siteUrl).toString();
 const imageUrl = new URL(image, siteUrl).toString();
@@ -49,7 +50,7 @@ const imageUrl = new URL(image, siteUrl).toString();
     <meta name="description" content={description} />
     <meta
       name="robots"
-      content={robots ?? meta?.robots}
+      content={isStaging ? 'noindex, nofollow, noarchive' : (robots ?? meta?.robots)}
     />
     {page !== '404' && <link rel="canonical" href={canonicalUrl} />}
 

@@ -1,0 +1,9 @@
+# Optional local secrets only. Never add real credentials to Git.
+# npm run preview uses local no-email test mode and needs no secrets.
+# Remote staging stays locked until these are set with wrangler secret put.
+# STAGING_USER="your-chosen-username"
+# STAGING_PASSWORD="use-a-unique-password-at-least-20-characters"
+# Optional, only after the email service and sender domain are approved:
+# RESEND_API_KEY=""
+# CONTACT_FROM=""
+# CONTACT_TO=""
