@@ -2,6 +2,9 @@
 
 The Astro site is separate from the live PHP repository and GoDaddy deployment.
 Its new staging target is Cloudflare Workers. No production hostname is configured.
+GoDaddy Web Hosting Deluxe is shared: `rgesol.com` is the primary domain, and
+`timgabaree.com` and the other sites are hosted beneath that account. Moving this
+site must not change or cancel the shared account or affect its other domains.
 
 ## Develop and test
 
@@ -50,8 +53,9 @@ request, including downloads and form endpoints, passes through the Worker.
 - Session tokens and conversion flags expire one hour after issuance; idle
   Durable Objects are automatically cleaned up. Rate counters expire after ten minutes (token issuance
   counters after one minute). No names, emails, messages or raw IPs are stored.
-- The production PHP repository, GoDaddy files, website DNS and email DNS must
-  remain untouched during staging setup.
+- The production PHP repository, GoDaddy files, website DNS and existing mailbox
+  DNS must remain untouched during staging setup. Resend uses separate sending
+  records under `forms.timgabaree.com`.
 
 After signing into the intended Cloudflare account with Wrangler:
 
@@ -88,6 +92,7 @@ server-side; visitor email is only Reply-To. Staging subjects get a `[STAGING]`
 prefix. A successful API response records a one-time conversion, but inbox receipt
 still needs a real test. Provider failures do not report successful delivery.
 Test mode never falls through to the provider, even if credentials are present.
+Staging delivery was confirmed by Resend and by the recipient on October 27, 2026.
 
 Credentials must never go in Git, frontend variables, or chat. `.dev.vars` is
 ignored; `.dev.vars.example` lists the optional local secret names. No secrets are
@@ -106,14 +111,85 @@ in Git as migration references. They are **not** part of the Cloudflare deployme
 local PHP comparison. Always rebuild with `npm run build` before Cloudflare use.
 Never serve a legacy build through a generic static server: it contains PHP source.
 
-## Before production cutover
+## Production preparation (not a cutover)
 
-Production is a separate, explicitly approved task. Configure its own Worker and
-state, approved mail service and secrets, canonical redirects and DNS plan. Update
-the privacy disclosures for the actual providers and retention. Build with
-`PUBLIC_SITE_ENV=production` only for production, then verify analytics, SEO,
-contact delivery and rollback before changing the live website DNS. Do not remove
-GoDaddy or alter mailbox DNS during staging work.
+`wrangler.production.jsonc` targets the separate `timgabaree-com-astro-production`
+Worker in the intended Cloudflare account. Its Durable Objects belong to that
+Worker, not staging. Production builds go to `dist-production/`; staging builds
+remain in `dist/`. Neither generated folder belongs in Git.
+
+The inactive production Worker was provisioned on October 27, 2026, version
+`f8bc70cb-3dcc-4339-86c5-8a8143d6f777`. Cloudflare reported no deployed targets.
+No live-domain bindings or production email secrets were added. This is not a
+live launch; the GoDaddy website and the existing staging deployment remain in place.
+
+```bash
+npm run prepare:production
+```
+
+This runs type checks, unit tests, a production build, local production
+configuration/content checks, and a Wrangler **dry run**. It does not deploy,
+send email, touch GoDaddy, or change DNS. The preparation checks deliberately
+require an empty route list, disabled `workers.dev` and preview URLs, and
+`PRODUCTION_ENABLED=false`. Revise those assertions as part of an approved launch,
+not to make a preparation check pass by exposing the site.
+
+The production Worker returns 503/no-store/noindex until the explicit launch
+switch is `true` and all three email secrets exist with `CONTACT_MODE=resend`.
+Once enabled, only `timgabaree.com` and `www.timgabaree.com` are accepted. HTTP and
+www requests redirect to `https://timgabaree.com`, preserving paths, query strings
+and POST methods. Both hostnames still need Cloudflare routing at cutover; code
+alone does not bind DNS or issue certificates. Unknown hosts are rejected.
+
+Production needs its own sending-only Resend key restricted to
+`forms.timgabaree.com`, plus `CONTACT_FROM` and `CONTACT_TO` secrets on the production
+Worker. Do not copy staging credentials or put keys in this configuration.
+Retain enforced TLS and disabled email tracking. No production secrets are
+required for the local checks, which mock the mail provider and never send email.
+
+Logs/traces remain disabled to avoid collecting request data inadvertently.
+Before launch, choose privacy-conscious uptime/error monitoring, check account
+usage limits and email quotas, and decide who receives failure notifications.
+GitHub holds the source; pushes do not automatically deploy either environment.
+
+### Launch gates still requiring verification
+
+- Production secrets provisioned; approved production email reaches the mailbox
+  without the `[STAGING]` subject prefix. Confirm failed sends do not claim success.
+- Phone/desktop and keyboard review, Calendly, documents, external links and
+  legacy URLs verified. Local checks validate internal links and built assets.
+- Production indexing, sitemap, canonical links and analytics verified on the
+  actual domain after cutover. Staging must remain private and unindexed.
+- GTM tags/consent choices and the revised privacy disclosure reviewed before
+  launch. The text describes implementation; it is not a legal compliance audit.
+- Exact Cloudflare DNS/routing snapshot, certificate plan and reversal steps
+  captured. No production-domain route is currently defined in this repository.
+- Server archive verified as described below. A Git checkout is not a full backup
+  of the deployed website.
+
+### GoDaddy archive and rollback boundary
+
+Before cutover, resolve the actual `timgabaree.com` document root in the shared
+GoDaddy account. Do not assume the local folder matches deployed files. Archive
+that site's deployed files (including hidden configuration, public downloads,
+and any required non-Git files), inventory any site-specific database or scheduled
+job dependencies, and export only applicable dependencies if present. Exclude
+sibling site roots. Store sensitive configuration outside Git in a protected
+archive, record a checksum/file inventory, and verify restoration separately.
+No server archive has been created by these preparation commands.
+
+Capture exact current apex/www DNS records, proxy settings and redirect/Worker
+rules; record how to restore the GoDaddy origin. After approval, attach only the
+website hostnames to the new Worker and verify TLS, redirects, real 404s, contact
+delivery and indexing. Leave MX, mailbox authentication records, Resend sending
+records and every other hosted domain unchanged.
+
+If critical checks fail, remove/disable the new website bindings and restore the
+saved website DNS/routing settings, then verify the PHP site. Keep the deployed
+GoDaddy files and domain mapping intact for rollback and archive. Do not delete
+the addon domain, its folder, the `rgesol.com` primary site, or the shared Web
+Hosting Deluxe account. Changing website DNS later does not require removing
+those files or cancelling hosting.
 
 ## Project structure
 

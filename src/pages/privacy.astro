@@ -14,7 +14,8 @@ const structuredData = {"@context":"https://schema.org","@graph":[{"@type":"WebS
   image="/media/profile-pic-tim-gabaree-900x1200.webp"
   imageAlt="Portrait of Tim"
   preloadImage={undefined}
-  structuredData={structuredData}
+  structuredData={{ ...structuredData, '@graph': structuredData['@graph'].map((entry) =>
+    entry['@type'] === 'WebPage' ? { ...entry, dateModified: '2026-10-27T00:00:00-05:00' } : entry) }}
   scripts={[]}
 >
 <main
@@ -48,14 +49,14 @@ const structuredData = {"@context":"https://schema.org","@graph":[{"@type":"WebS
                 click tracking are not configured. Please use test information only.</p>
                 <p>The site’s contact handler does not persist message bodies.
                 It keeps short-lived security tokens and rate-limit state. The
-                policy below was migrated from the live site and remains subject
-                to review before production launch.</p>
+                policy below describes the prepared Cloudflare site, not the
+                separate PHP site still hosted at GoDaddy.</p>
             </aside>}
 
             <p class="privacy-updated">
                 Last Updated:
-                <time datetime="2026-08-20T00:00:00-05:00">
-                    August 20, 2026                </time>
+                <time datetime="2026-10-27T00:00:00-05:00">
+                    October 27, 2026                </time>
             </p>
 
             <p>
@@ -225,14 +226,13 @@ const structuredData = {"@context":"https://schema.org","@graph":[{"@type":"WebS
       </p>
 
       <p>
-        Contact-form submissions include limited technical request
-        information, including the submitting IP address and browser
-        user-agent information, for security and operational purposes.
-        The contact-form abuse-prevention system also uses a
-        cryptographic hash derived from the IP address together with
-        recent submission timestamps. That short-lived rate-limit state
-        is automatically discarded after the configured protection
-        window.
+        Cloudflare processes technical request information to serve and
+        protect this website. The contact handler uses a cryptographic
+        hash derived from the IP address and recent request timestamps
+        to limit abuse. It does not store raw IP addresses or browser
+        user-agent information in its form-security state, or include
+        them in the inquiry email. Hosting providers may separately
+        process technical information under their own policies.
       </p>
 
       <p class="privacy-return-to-contents">
@@ -256,17 +256,19 @@ const structuredData = {"@context":"https://schema.org","@graph":[{"@type":"WebS
       </h2>
 
       <p>
-        This website uses a first-party session cookie for contact-related
+        This website uses a first-party cookie for contact-related
         requests. It supports form security, submission throttling, and
         one-time contact-conversion state. The session cookie is not used
-        to create a persistent visitor profile.
+        to create a persistent visitor profile. It expires after one hour
+        unless refreshed by another request for a form token. It is
+        restricted to secure connections and cannot be read by page scripts.
       </p>
 
       <p>
-        Google Tag Manager is loaded on the website and may deliver
+        Google Tag Manager is loaded on the production website and may deliver
         configured analytics or measurement tags. Those services may use
         cookies or similar browser technologies according to their own
-        configurations and privacy practices.
+        configurations and privacy practices. Analytics are disabled on staging.
       </p>
 
       <p>
@@ -348,9 +350,18 @@ const structuredData = {"@context":"https://schema.org","@graph":[{"@type":"WebS
         <li>Google Analytics, when configured through site measurement</li>
         <li>Google Search Console</li>
         <li>Calendly</li>
-        <li>GoDaddy Hosting</li>
-        <li>Cloudflare</li>
+        <li><a href="https://www.cloudflare.com/privacypolicy/">Cloudflare</a> for website hosting, delivery, and security</li>
+        <li><a href="https://resend.com/legal/privacy-policy">Resend</a> for contact-form email delivery</li>
       </ul>
+
+      <p>
+        Contact information and message content pass through Cloudflare
+        and Resend to Tim Gabaree’s email service and mailbox so he can
+        respond. Your email address is used as the reply-to address;
+        messages are sent only to a fixed site-owner address. Resend
+        processes email data in the United States. Email open and click
+        tracking are not enabled for contact messages.
+      </p>
 
       <p>
         The website also contains links to external services and
@@ -389,6 +400,22 @@ const structuredData = {"@context":"https://schema.org","@graph":[{"@type":"WebS
         as long as reasonably necessary to respond to inquiries,
         maintain business records, comply with legal obligations, or
         protect the security of the website.
+      </p>
+
+      <p>
+        The website’s contact handler does not save message bodies in
+        its form-security storage. Form tokens and conversion flags expire
+        after one hour; submission rate limits use a ten-minute window,
+        and token-request rate limits use a one-minute window. Expired
+        security state is cleaned up automatically.
+      </p>
+
+      <p>
+        This does not mean that inquiry emails disappear after those
+        windows. Resend retains email content and delivery records under
+        its <a href="https://resend.com/security/gdpr">service retention policy</a>, and copies may remain in the receiving
+        email service, mailbox, and backups. Contact Tim using the details
+        below with a question or deletion request.
       </p>
 
       <p class="privacy-return-to-contents">

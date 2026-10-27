@@ -2637,6 +2637,7 @@ button.contact-action {
 }
 
 .privacy-card h2 {
+  scroll-margin-top: 70px;
   margin-top: 0;
   margin-bottom: 14px;
   color: var(--accent-color);

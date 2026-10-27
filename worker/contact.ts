@@ -5,6 +5,7 @@ export interface Env {
   CONTACT_STATE: DurableObjectNamespace;
   ENVIRONMENT: 'local' | 'staging' | 'production';
   CONTACT_MODE: 'dry-run' | 'resend';
+  PRODUCTION_ENABLED?: string;
   STAGING_USER?: string;
   STAGING_PASSWORD?: string;
   RESEND_API_KEY?: string;

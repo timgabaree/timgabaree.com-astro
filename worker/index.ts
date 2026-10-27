@@ -19,7 +19,24 @@ async function equalSecret(a: string, b: string): Promise<boolean> {
 async function authorize(request: Request, env: Env): Promise<Response | undefined> {
   const url = new URL(request.url);
   if (env.ENVIRONMENT === 'local' && ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)) return;
-  if (env.ENVIRONMENT === 'production') return;
+  if (env.ENVIRONMENT === 'production') {
+    // Preparation is not launch. Missing configuration must never expose a partial site.
+    if (env.PRODUCTION_ENABLED !== 'true' || env.CONTACT_MODE !== 'resend' ||
+        !env.RESEND_API_KEY || !env.CONTACT_FROM || !env.CONTACT_TO) {
+      return new Response('Site not yet enabled.', { status: 503 });
+    }
+    if (!['timgabaree.com', 'www.timgabaree.com'].includes(url.hostname)) {
+      return new Response('Not found', { status: 404 });
+    }
+    if (url.origin !== 'https://timgabaree.com') {
+      // Preserve paths, queries and POST bodies. Never trust forwarded-host headers.
+      url.protocol = 'https:';
+      url.hostname = 'timgabaree.com';
+      url.port = '';
+      return Response.redirect(url.href, 308);
+    }
+    return;
+  }
   if (env.ENVIRONMENT !== 'staging' || !env.STAGING_USER || !env.STAGING_PASSWORD || env.STAGING_PASSWORD.length < 20) {
     return new Response('Staging is locked until access is configured.', { status: 503 });
   }
@@ -48,6 +65,9 @@ function secure(response: Response, request: Request, env: Env): Response {
     result.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
     result.headers.set('Cache-Control', 'private, no-store');
     result.headers.append('Vary', 'Authorization');
+  } else if (result.status >= 400 || /^\/thank-you(?:[/.]|$)/.test(new URL(request.url).pathname)) {
+    result.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
+    result.headers.set('Cache-Control', 'no-store');
   } else if (/^\/contact-(?:token|submit|conversion)/.test(new URL(request.url).pathname)) {
     result.headers.set('Cache-Control', 'no-store');
   } else if (/text\/html|text\/css|javascript/.test(result.headers.get('Content-Type') ?? '')) {

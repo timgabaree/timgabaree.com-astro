@@ -2,7 +2,8 @@ import { copyFileSync, readdirSync, rmSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 
-const output = fileURLToPath(new URL('../dist/', import.meta.url));
+const output = fileURLToPath(new URL(process.env.PUBLIC_SITE_ENV === 'production'
+  ? '../dist-production/' : '../dist/', import.meta.url));
 // Astro recreates dist on every build. Remove Apache-only files from that output,
 // not from the source or the separate PHP project.
 function clean(directory) {

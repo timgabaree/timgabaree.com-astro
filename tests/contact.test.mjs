@@ -166,16 +166,9 @@ test('token issuance is rate-limited and valid tokens remain stable across tabs'
 test('honeypot accepts without email or conversion; production cannot report dry-run success', async () => {
   const env = environment(), session = await token(env);
   assert.equal((await submit(env, session, { website: 'https://spam.invalid' })).headers.get('Location'), '/thank-you');
-  const production = environment({ ENVIRONMENT: 'production' });
-  const tokenResponse = await worker.fetch(new Request('https://example.invalid/contact-token', { headers: { 'CF-Connecting-IP': '192.0.2.1' } }), production);
-  const csrf = await tokenResponse.json();
-  const response = await worker.fetch(new Request('https://example.invalid/contact-submit', {
-    method: 'POST', headers: {
-      Origin: 'https://example.invalid', 'CF-Connecting-IP': '192.0.2.1',
-      Cookie: tokenResponse.headers.get('Set-Cookie').split(';')[0], 'Content-Type': 'application/x-www-form-urlencoded',
-    }, body: new URLSearchParams({ ...valid, csrf_token: csrf.csrf_token }),
-  }), production);
-  assert.equal(response.headers.get('Location'), '/contact?status=send-error');
+  const production = environment({ ENVIRONMENT: 'production', PRODUCTION_ENABLED: 'true' });
+  const response = await worker.fetch(new Request('https://timgabaree.com/contact-token'), production);
+  assert.equal(response.status, 503, 'production rejects dry-run or missing delivery credentials');
 });
 
 test('provider path uses fixed recipient and reply-to; failure is not a success', async (t) => {
