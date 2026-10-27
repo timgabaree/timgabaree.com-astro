@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  page="404"
+  title="Page Not Found | Tim Gabaree"
+  description="The requested page could not be found on timgabaree.com."
+  canonicalPath="/404"
+  robots="noindex, follow"
+>
+  <main id="main-content">
+    <section class="component-error">
+      <div class="component-error-container">
+        <p class="component-error-kicker">Error 404</p>
+        <h1>Page Not Found</h1>
+        <p class="component-error-lead">The page you requested could not be found.</p>
+        <p>
+          The address may have changed, or the page may no longer be available.
+          You can return to the homepage or contact Tim.
+        </p>
+        <div class="component-error-actions">
+          <a
+            class="component-error-button component-error-button-primary"
+            href="/"
+          >
+            Return Home
+          </a>
+          <a
+            class="component-error-button component-error-button-secondary"
+            href="/contact"
+          >
+            Contact Tim
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

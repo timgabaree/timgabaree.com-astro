@@ -1,0 +1,123 @@
+{
+  "404": {
+    "ogTitle": "Page Not Found | Tim Gabaree",
+    "ogDescription": "The requested page could not be found on timgabaree.com.",
+    "twitterCard": "summary",
+    "twitterDescription": "The requested page could not be found on timgabaree.com.",
+    "robots": "noindex, follow",
+    "bodyClass": "",
+    "preloadImage": "",
+    "imageWidth": 900,
+    "imageHeight": 1200
+  },
+  "home": {
+    "ogTitle": "Tim Gabaree | CIO & Technology Executive",
+    "ogDescription": "CIO and technology executive focused on AI strategy, cybersecurity, enterprise technology, operational performance, and technology value creation.",
+    "twitterCard": "summary",
+    "twitterDescription": "CIO and technology executive focused on AI strategy, cybersecurity, enterprise technology, operational performance, and technology value creation.",
+    "robots": "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+    "bodyClass": "",
+    "preloadImage": "/media/background-pic-architecture-1920x942.webp",
+    "imageWidth": 900,
+    "imageHeight": 1200
+  },
+  "technology-leadership": {
+    "ogTitle": "Enterprise Technology Leadership | Tim Gabaree",
+    "ogDescription": "A CIO perspective on connecting AI, cybersecurity, technology strategy, operations, investment, risk, and execution to enterprise performance.",
+    "twitterCard": "summary_large_image",
+    "twitterDescription": "A CIO perspective on connecting AI, cybersecurity, technology strategy, operations, investment, risk, and execution to enterprise performance.",
+    "robots": "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+    "bodyClass": "",
+    "preloadImage": "/media/background-pic-architecture-1920x942.webp",
+    "imageWidth": 900,
+    "imageHeight": 1200
+  },
+  "value-creation": {
+    "ogTitle": "Technology Value Creation | Tim Gabaree",
+    "ogDescription": "A CIO perspective on connecting technology investment to operating performance, cost, risk, modernization, and enterprise value.",
+    "twitterCard": "summary_large_image",
+    "twitterDescription": "A CIO perspective on connecting technology investment to operating performance, cost, risk, modernization, and enterprise value.",
+    "robots": "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+    "bodyClass": "",
+    "preloadImage": "/media/background-pic-architecture-1920x942.webp",
+    "imageWidth": 900,
+    "imageHeight": 1200
+  },
+  "governance": {
+    "ogTitle": "Technology Governance | Tim Gabaree",
+    "ogDescription": "An executive and board perspective on practical governance for technology, AI, cybersecurity, investment, risk, performance, and accountability.",
+    "twitterCard": "summary_large_image",
+    "twitterDescription": "An executive and board perspective on practical governance for technology, AI, cybersecurity, investment, risk, performance, and accountability.",
+    "robots": "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+    "bodyClass": "",
+    "preloadImage": "/media/background-pic-architecture-1920x942.webp",
+    "imageWidth": 900,
+    "imageHeight": 1200
+  },
+  "about": {
+    "ogTitle": "About Tim Gabaree | CIO & Technology Executive",
+    "ogDescription": "About Tim Gabaree, CIO and technology executive, independent board director, veteran, husband, father, and lifelong learner.",
+    "twitterCard": "summary_large_image",
+    "twitterDescription": "CIO and technology executive, independent board director, veteran, husband, father, and lifelong learner.",
+    "robots": "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+    "bodyClass": "",
+    "preloadImage": "/media/about-gabaree-family-800x600.webp",
+    "imageWidth": 800,
+    "imageHeight": 600
+  },
+  "contact": {
+    "ogTitle": "Connect with Tim Gabaree",
+    "ogDescription": "Save Tim’s contact information, connect on LinkedIn, schedule a meeting, or review executive materials.",
+    "twitterCard": "summary",
+    "twitterDescription": "CIO & Technology Executive | AI Strategy & Enablement | Cybersecurity | Technology Value Creation",
+    "robots": "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+    "bodyClass": "contact-body",
+    "preloadImage": "/media/profile-pic-tim-gabaree-900x1200.webp",
+    "imageWidth": 900,
+    "imageHeight": 1200
+  },
+  "privacy": {
+    "ogTitle": "Privacy Policy | Tim Gabaree",
+    "ogDescription": "Privacy Policy for timgabaree.com explaining how information may be collected, used, retained, and protected.",
+    "twitterCard": "summary",
+    "twitterDescription": "Privacy Policy for timgabaree.com explaining how visitor information may be collected and used.",
+    "robots": "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+    "bodyClass": "privacy-body",
+    "preloadImage": "/media/background-pic-architecture-1920x942.webp",
+    "imageWidth": 900,
+    "imageHeight": 1200
+  },
+  "error-403": {
+    "ogTitle": "Access Denied | Tim Gabaree",
+    "ogDescription": "Access to this page or resource is restricted.",
+    "twitterCard": "summary",
+    "twitterDescription": "Access to this page or resource is restricted.",
+    "robots": "noindex, follow",
+    "bodyClass": "",
+    "preloadImage": "",
+    "imageWidth": 900,
+    "imageHeight": 1200
+  },
+  "error-500": {
+    "ogTitle": "Server Error | Tim Gabaree",
+    "ogDescription": "An unexpected internal server error occurred on timgabaree.com.",
+    "twitterCard": "summary",
+    "twitterDescription": "An unexpected internal server error occurred on timgabaree.com.",
+    "robots": "noindex, nofollow",
+    "bodyClass": "",
+    "preloadImage": "",
+    "imageWidth": 900,
+    "imageHeight": 1200
+  },
+  "thank-you": {
+    "ogTitle": "Thank You | Tim Gabaree",
+    "ogDescription": "Your message has been received. Thank you for continuing the conversation with Tim Gabaree.",
+    "twitterCard": "summary",
+    "twitterDescription": "Your message has been received. Thank you for continuing the conversation.",
+    "robots": "noindex, follow",
+    "bodyClass": "thank-you-body",
+    "preloadImage": "",
+    "imageWidth": 900,
+    "imageHeight": 1200
+  }
+}

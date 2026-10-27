@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
+
+<urlset
+    xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+    xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <!-- Home -->
+  <url>
+    <loc>https://timgabaree.com/</loc>
+    <lastmod>2026-09-30</lastmod>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/profile-pic-tim-gabaree-900x1200.webp</image:loc>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/profile-pic-tim-gabaree-in-the-morning-400x534.webp</image:loc>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/background-pic-architecture-1920x942.webp</image:loc>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/results-background-left-850x1050.webp</image:loc>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/results-background-middle-850x1050.webp</image:loc>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/results-background-right-850x1050.webp</image:loc>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/expertise-background-650x752.webp</image:loc>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/education-background-university-of-illinois-springfield-1200x313.webp</image:loc>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/education-logo-university-of-illinois-springfield-500x250.webp</image:loc>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/education-background-purdue-university-global-1200x444.webp</image:loc>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/education-logo-purdue-university-global-500x137.webp</image:loc>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/qr-code-tim-gabaree-500x500.webp</image:loc>
+    </image:image>
+  </url>
+
+  <!-- Technology leadership -->
+  <url>
+    <loc>https://timgabaree.com/technology-leadership</loc>
+    <lastmod>2026-09-30</lastmod>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/background-pic-architecture-1920x942.webp</image:loc>
+    </image:image>
+  </url>
+
+  <!-- Value creation -->
+  <url>
+    <loc>https://timgabaree.com/value-creation</loc>
+    <lastmod>2026-09-30</lastmod>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/background-pic-architecture-1920x942.webp</image:loc>
+    </image:image>
+  </url>
+
+  <!-- Governance -->
+  <url>
+    <loc>https://timgabaree.com/governance</loc>
+    <lastmod>2026-09-30</lastmod>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/background-pic-architecture-1920x942.webp</image:loc>
+    </image:image>
+  </url>
+
+  <!-- About -->
+  <url>
+    <loc>https://timgabaree.com/about</loc>
+    <lastmod>2026-09-30</lastmod>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/about-gabaree-family-800x600.webp</image:loc>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/about-lady-liberty-finn-clint-carrie-tim-800x1067.webp</image:loc>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/about-finn-clint-working-hard-message-800x486.webp</image:loc>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/about-gabaree-family-mt-vernon-800x600.webp</image:loc>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/interests-and-hobbies-roasted-beans-and-espresso800x602.webp</image:loc>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/interests-and-hobbies-chocolate-babka-800x602.webp</image:loc>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/interests-and-hobbies-neapolitan-pizza-800x602.webp</image:loc>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/profile-pic-tim-gabaree-geeking-out-800x533.webp</image:loc>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/qr-code-tim-gabaree-500x500.webp</image:loc>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/background-pic-architecture-1920x942.webp</image:loc>
+    </image:image>
+  </url>
+
+  <!-- Contact -->
+  <url>
+    <loc>https://timgabaree.com/contact</loc>
+    <lastmod>2026-09-30</lastmod>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/profile-pic-tim-gabaree-900x1200.webp</image:loc>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/qr-code-tim-gabaree-500x500.webp</image:loc>
+    </image:image>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/background-pic-architecture-1920x942.webp</image:loc>
+    </image:image>
+  </url>
+
+  <!-- Privacy -->
+  <url>
+    <loc>https://timgabaree.com/privacy</loc>
+    <lastmod>2026-08-20</lastmod>
+
+    <image:image>
+      <image:loc>https://timgabaree.com/media/background-pic-architecture-1920x942.webp</image:loc>
+    </image:image>
+  </url>
+
+</urlset>

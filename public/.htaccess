@@ -1,0 +1,45 @@
+Options -MultiViews -Indexes
+DirectoryIndex index.html
+
+# Deploy dist/ as the document root, never the project source.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Protect internals on production, staging, and local Apache hosts.
+  RewriteRule ^(?:includes|server-php|src|scripts|node_modules|tmp)(?:/|$) - [F,END,NC]
+  RewriteRule (^|/)(?:\.(?!well-known(?:/|$))|_notes(?:/|$)|error_log$) - [F,END,NC]
+
+  # Canonicalize the public domain only; keep staging hosts usable.
+  RewriteCond %{HTTP_HOST} ^(?:www\.)?timgabaree\.com$ [NC]
+  RewriteCond %{HTTPS} !=on [OR]
+  RewriteCond %{HTTP_HOST} ^www\.timgabaree\.com$ [NC]
+  RewriteRule ^ https://timgabaree.com%{REQUEST_URI} [R=308,END,NE]
+
+  # Do not redirect a POST and lose its body.
+  RewriteRule ^contact-(token|submit|conversion)/?$ contact-$1.php [END]
+  RewriteRule ^contact-(token|submit|conversion)\.php$ - [END]
+
+  # Preserve old PHP/HTML links and extensionless canonical URLs.
+  RewriteCond %{THE_REQUEST} \s/+index\.(?:php|html)(?:[\s?]) [NC]
+  RewriteRule ^index\.(?:php|html)$ / [R=301,END]
+  RewriteCond %{THE_REQUEST} \s/+(?:about|contact|governance|privacy|technology-leadership|thank-you|value-creation)(?:/index)?\.(?:php|html)(?:[\s?]) [NC]
+  RewriteRule ^(about|contact|governance|privacy|technology-leadership|thank-you|value-creation)(?:/index)?\.(?:php|html)$ /$1 [R=301,END]
+  RewriteRule ^(about|contact|governance|privacy|technology-leadership|thank-you|value-creation)/$ /$1 [R=301,END]
+  RewriteRule ^(about|contact|governance|privacy|technology-leadership|thank-you|value-creation)$ $1.html [END]
+  # Missing files fall through to Apache's real 404 response.
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Permissions-Policy "camera=(), geolocation=(), microphone=()"
+  Header always set Strict-Transport-Security "max-age=31536000" "expr=%{HTTPS} == 'on'"
+  Header always set Content-Security-Policy "default-src 'self'; object-src 'none'; script-src 'self' https://www.googletagmanager.com https://assets.calendly.com; style-src 'self' 'unsafe-inline' https://assets.calendly.com; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://www.googletagmanager.com https://*.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://calendly.com https://*.calendly.com; frame-src https://www.googletagmanager.com https://calendly.com https://*.calendly.com; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>
+
+ErrorDocument 403 /404.html
+ErrorDocument 404 /404.html

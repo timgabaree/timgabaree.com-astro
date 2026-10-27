@@ -1,0 +1,26 @@
+{
+  "name": "timgabaree.com-astro",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "astro check",
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build && npm run build:php",
+    "build:php": "node scripts/copy-php-endpoint.mjs",
+    "preview": "npm run preview:php",
+    "preview:php": "php -S 127.0.0.1:8765 -t dist scripts/preview-router.php",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^7.4.2"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "typescript": "^6.0.3"
+  },
+  "engines": {
+    "node": ">=22.23.4"
+  }
+}

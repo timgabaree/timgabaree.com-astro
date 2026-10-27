@@ -1,0 +1,621 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const structuredData = {"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://timgabaree.com/#website","url":"https://timgabaree.com/","name":"Tim Gabaree","description":"CIO and technology executive focused on AI strategy and enablement, cybersecurity, enterprise technology, infrastructure and operations, and technology value creation.","inLanguage":"en-US"},{"@type":"ImageObject","@id":"https://timgabaree.com/#primaryimage","url":"https://timgabaree.com/media/profile-pic-tim-gabaree-900x1200.webp","contentUrl":"https://timgabaree.com/media/profile-pic-tim-gabaree-900x1200.webp","width":900,"height":1200,"encodingFormat":"image/webp","caption":"Tim Gabaree, CIO and technology executive","representativeOfPage":true},{"@type":"ContactPage","@id":"https://timgabaree.com/contact#webpage","url":"https://timgabaree.com/contact","name":"Connect with Tim Gabaree | CIO \u0026 Technology Executive","description":"Connect with Tim Gabaree, a CIO and technology executive focused on AI strategy, cybersecurity, enterprise technology, and technology value creation.","inLanguage":"en-US","datePublished":"2026-08-07T00:00:00-05:00","dateModified":"2026-09-30T00:00:00-05:00","isPartOf":{"@id":"https://timgabaree.com/#website"},"primaryImageOfPage":{"@id":"https://timgabaree.com/#primaryimage"},"about":{"@id":"https://timgabaree.com/#person"},"mainEntity":{"@id":"https://timgabaree.com/#person"}},{"@type":"Person","@id":"https://timgabaree.com/#person","name":"Tim Gabaree","givenName":"Tim","familyName":"Gabaree","url":"https://timgabaree.com/","image":{"@id":"https://timgabaree.com/#primaryimage"},"jobTitle":"CIO and Technology Executive","description":"CIO and technology executive focused on AI strategy and enablement, cybersecurity, enterprise technology, infrastructure and operations, and technology value creation.","email":"mailto:tim@timgabaree.com","telephone":"+1-571-762-3769","sameAs":["https://www.linkedin.com/in/timgabaree","https://github.com/timgabaree","https://timgabaree.blogspot.com","https://x.com/timgabaree","https://bsky.app/profile/timgabaree.bsky.social"],"spouse":{"@type":"Person","@id":"https://carriegabaree.com/#person","name":"Carrie Gabaree","url":"https://carriegabaree.com/","sameAs":["https://www.linkedin.com/in/carriegabaree"]},"affiliation":{"@type":"Organization","name":"RGE Solutions LLC","url":"https://rgesol.com/"},"memberOf":[{"@type":"Organization","name":"Private Directors Association"},{"@type":"Organization","name":"IEEE"},{"@type":"Organization","name":"ISC2"},{"@type":"Organization","name":"Project Management Institute"}],"alumniOf":[{"@type":"CollegeOrUniversity","name":"Purdue University Global"},{"@type":"CollegeOrUniversity","name":"University of Illinois Springfield"}],"hasCredential":[{"@type":"EducationalOccupationalCredential","name":"Master of Business Administration"},{"@type":"EducationalOccupationalCredential","name":"Certified Information Systems Security Professional"},{"@type":"EducationalOccupationalCredential","name":"Project Management Professional"},{"@type":"EducationalOccupationalCredential","name":"Wharton Corporate Governance Certificate"}],"knowsAbout":["AI Strategy and Enablement","Artificial Intelligence","Cybersecurity","Enterprise Technology","Infrastructure and Operations","Technology Value Creation","Enterprise Performance","Technology Strategy","Technology Investment","Technology Modernization","Enterprise Architecture","Cloud Computing","Vendor Rationalization","Post-Acquisition Integration","Program Recovery","Operating Model Improvement","Digital Transformation"],"knowsLanguage":["en"],"mainEntityOfPage":{"@id":"https://timgabaree.com/contact#webpage"},"contactPoint":{"@id":"https://timgabaree.com/contact#contactpoint"}},{"@type":"ContactPoint","@id":"https://timgabaree.com/contact#contactpoint","contactType":"professional inquiries","email":"tim@timgabaree.com","telephone":"+1-571-762-3769","url":"https://timgabaree.com/contact","availableLanguage":["en"]}]};
+---
+
+<BaseLayout
+  page="contact"
+  title="Connect with Tim Gabaree | CIO & Technology Executive"
+  description="Connect with Tim Gabaree, a CIO and technology executive focused on AI strategy, cybersecurity, enterprise technology, and technology value creation."
+  canonicalPath="/contact"
+  ogType="website"
+  image="/media/profile-pic-tim-gabaree-900x1200.webp"
+  imageAlt="Portrait of Tim"
+  preloadImage={undefined}
+  structuredData={structuredData}
+  scripts={["/js/calendly.js","/js/contact-form.js"]}
+>
+<main
+  id="main-content"
+  class="contact-page">
+
+  <img src="/media/background-pic-architecture-1920x942.webp" alt="" width="1920" height="942" class="contact-background-image" loading="eager" fetchpriority="high" decoding="async">
+<!-- Executive Contact Section -->
+
+  <section
+    class="contact-section"
+    aria-labelledby="contact-page-title">
+
+    <div class="contact-card">
+
+      <div class="contact-profile">
+
+        <img src="/media/profile-pic-tim-gabaree-900x1200.webp" alt="Portrait of Tim" width="900" height="1200" aria-describedby="image-description-profile-1" class="contact-profile-image" loading="eager" fetchpriority="high" decoding="async"><span id="image-description-profile-1" class="visually-hidden">Head-and-shoulders professional portrait of Tim smiling at the camera. He has short gray and light-brown hair and rectangular dark-framed glasses, and wears a light blue collared shirt beneath a dark blazer. The softly blurred background shows a bright indoor setting.</span>
+        <p class="contact-location">
+          Washington, DC
+          <span aria-hidden="true"> • </span>
+          New York
+          <span aria-hidden="true"> • </span>
+          Chicago
+        </p>
+
+      </div>
+
+      <div class="contact-page-content">
+
+        <p class="contact-eyebrow">
+          Connect
+        </p>
+
+        <h1 id="contact-page-title">
+          Tim Gabaree        </h1>
+
+        <p class="contact-headline">
+
+          <span class="contact-headline-line">
+
+            <span class="contact-headline-item">
+              CIO &amp; Technology Executive
+            </span>
+
+            <span class="contact-headline-item">
+              AI Strategy &amp; Enablement
+            </span>
+
+          </span>
+
+          <span class="contact-headline-line">
+
+            <span class="contact-headline-item contact-headline-item-secondary">
+              Cybersecurity &middot; Technology Value Creation
+            </span>
+
+          </span>
+
+        </p>
+
+        <p class="contact-summary">
+          Aligning technology investment with business priorities to improve
+          performance, strengthen resilience, manage risk, and create
+          enterprise value across complex organizations.
+        </p>
+
+        <div class="contact-actions">
+
+          <a
+            href="/timgabaree.vcf"
+            class="contact-action contact-action-primary">
+
+            <span
+              class="contact-action-icon contact-vcard-icon"
+              aria-hidden="true">
+              ＋
+            </span>
+
+            <span class="contact-action-text">
+              <strong>Save Contact</strong>
+              <small>Download a vCard for your contacts</small>
+            </span>
+
+          </a>
+
+          <a
+            href="mailto:tim@timgabaree.com"
+            class="contact-action">
+
+            <span
+              class="contact-action-icon contact-email-icon"
+              aria-hidden="true">
+              <span class="contact-action-glyph">
+                ✉
+              </span>
+            </span>
+
+            <span class="contact-action-text">
+              <strong>Email</strong>
+              <small>tim@timgabaree.com</small>
+            </span>
+
+          </a>
+
+          <a
+            href="tel:+15717623769"
+            class="contact-action">
+
+            <span
+              class="contact-action-icon contact-telephone-icon"
+              aria-hidden="true">
+              ☎
+            </span>
+
+            <span class="contact-action-text">
+              <strong>Call</strong>
+              <small>571.762.3769</small>
+            </span>
+
+          </a>
+
+          <a
+            href="https://www.linkedin.com/in/timgabaree"
+            target="_blank"
+            rel="me noopener noreferrer"
+            class="contact-action"
+            aria-label="Connect with Tim Gabaree on LinkedIn — opens in a new tab">
+
+            <span
+              class="contact-action-icon contact-linkedin-icon"
+              aria-hidden="true">
+              in
+            </span>
+
+            <span class="contact-action-text">
+              <strong>LinkedIn</strong>
+              <small>Connect professionally</small>
+            </span>
+
+          </a>
+
+          <a
+            href="https://calendly.com/timgabaree/meet-with-tim"
+            class="contact-action"
+            data-calendly-trigger
+            data-calendly-url="https://calendly.com/timgabaree/meet-with-tim">
+
+            <span
+              class="contact-action-icon contact-schedule-icon"
+              aria-hidden="true">
+              <span class="contact-action-glyph">
+                ◷
+              </span>
+            </span>
+
+            <span class="contact-action-text">
+              <strong>Schedule</strong>
+              <small>View availability</small>
+            </span>
+
+          </a>
+
+          <a
+            href="https://rgesol.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="contact-action"
+            aria-label="Visit RGE Solutions — opens in a new tab">
+
+            <span
+              class="contact-action-icon contact-rge-icon"
+              aria-hidden="true">
+              RGE
+            </span>
+
+            <span class="contact-action-text">
+              <strong>RGE Solutions</strong>
+              <small>Technology advisory and execution</small>
+            </span>
+
+          </a>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+<!-- End Executive Contact Section -->
+
+<!-- Executive Portfolio Section -->
+
+  <section
+    class="contact-resources"
+    aria-labelledby="contact-resources-title">
+
+    <h2
+      id="contact-resources-title"
+      class="contact-resources-heading">
+      Executive Portfolio
+    </h2>
+
+    <p class="contact-resources-description">
+      Executive and board materials highlighting my leadership experience,
+      AI strategy, enterprise technology, cybersecurity, and value creation.
+    </p>
+
+    <div class="contact-resource-grid">
+
+      <a
+        href="https://docsend.com/view/8sd3u5znxdmwtaqp"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="contact-resource-link">
+
+        Executive Profile
+
+        <span class="visually-hidden">
+          — opens in a new tab
+        </span>
+
+      </a>
+
+      <a
+        href="https://docsend.com/view/r4xai6b9k5zq6y5n"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="contact-resource-link">
+
+        Résumé
+
+        <span class="visually-hidden">
+          — opens in a new tab
+        </span>
+
+      </a>
+
+      <a
+        href="https://docsend.com/view/g4ipzhamredfwbtb"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="contact-resource-link">
+
+        Executive Biography
+
+        <span class="visually-hidden">
+          — opens in a new tab
+        </span>
+
+      </a>
+
+      <a
+        href="https://docsend.com/view/68wp4jd332kg86d3"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="contact-resource-link">
+
+        Board Résumé
+
+        <span class="visually-hidden">
+          — opens in a new tab
+        </span>
+
+      </a>
+
+      <a
+        href="https://docsend.com/view/z6gz9pvv9jkr8zfk"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="contact-resource-link">
+
+        Board Biography
+
+        <span class="visually-hidden">
+          — opens in a new tab
+        </span>
+
+      </a>
+
+    </div>
+
+  </section>
+
+<!-- End Executive Portfolio Section -->
+
+
+<!-- Contact Form Section -->
+
+  <section
+    class="contact-conversation-section"
+    aria-labelledby="contact-conversation-title">
+
+    <div class="contact-conversation-card">
+
+      <div class="contact-conversation-intro">
+
+        <p class="contact-eyebrow" id="contact-conversation-title">
+          Continue the Conversation
+        </p>
+
+        <p>
+          Share a little about the opportunity, challenge, or topic you would
+          like to discuss. I review each message personally and will respond
+          as promptly as possible.
+        </p>
+
+      </div>
+
+      <form
+        class="contact-contact-form"
+        action="/contact-submit"
+        method="post"
+        accept-charset="UTF-8"
+                aria-describedby="contact-required-fields"
+        >
+
+<!--
+|--------------------------------------------------------------------------
+| CSRF Protection
+|--------------------------------------------------------------------------
+-->
+
+        <input
+          type="hidden"
+          id="csrf_token" name="csrf_token" value="">
+
+        <p
+          id="contact-required-fields"
+          class="visually-hidden">
+          Fields marked with an asterisk are required.
+        </p>
+
+<!--
+|--------------------------------------------------------------------------
+| Honeypot Spam Protection
+|--------------------------------------------------------------------------
+-->
+
+        <div
+          class="contact-form-honeypot"
+          aria-hidden="true">
+
+          <label for="website">
+            Leave this field empty
+          </label>
+
+          <input
+            type="text"
+            id="website"
+            name="website"
+            tabindex="-1"
+            autocomplete="off">
+
+        </div>
+
+        <div class="contact-form-grid">
+
+          <div class="contact-form-field">
+
+            <label for="name">
+              Name
+              <span aria-hidden="true">*</span>
+            </label>
+
+            <input
+              type="text"
+              id="name"
+              name="name"
+              autocomplete="name"
+              maxlength="100"
+              required
+              aria-required="true">
+
+          </div>
+
+          <div class="contact-form-field">
+
+            <label for="organization">
+              Organization
+            </label>
+
+            <input
+              type="text"
+              id="organization"
+              name="organization"
+              autocomplete="organization"
+              maxlength="150">
+
+          </div>
+
+          <div class="contact-form-field">
+
+            <label for="email">
+              Email
+              <span aria-hidden="true">*</span>
+            </label>
+
+            <input
+              type="email"
+              id="email"
+              name="email"
+              autocomplete="email"
+              inputmode="email"
+              maxlength="254"
+              required
+              aria-required="true">
+
+          </div>
+
+          <div class="contact-form-field">
+
+            <label for="phone">
+              Phone
+            </label>
+
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              autocomplete="tel"
+              inputmode="tel"
+              maxlength="40">
+
+          </div>
+
+          <div class="contact-form-field contact-form-field-full">
+
+            <label for="topic">
+              What would you like to discuss?
+              <span aria-hidden="true">*</span>
+            </label>
+
+            <select
+              id="topic"
+              name="topic"
+              required
+              aria-required="true">
+
+              <option
+                value=""
+                selected
+                disabled>
+                Select a topic
+              </option>
+
+
+              <option value="executive-leadership">
+                Executive Leadership Opportunity              </option>
+
+
+              <option value="board-advisory">
+                Board or Advisory Opportunity              </option>
+
+
+              <option value="private-equity-portfolio">
+                Private Equity or Portfolio Leadership              </option>
+
+
+              <option value="speaking-media">
+                Speaking or Media Inquiry              </option>
+
+
+              <option value="professional-networking">
+                Professional Networking              </option>
+
+
+              <option value="privacy-request">
+                Privacy or Personal Data Request              </option>
+
+
+              <option value="rge-solutions">
+                RGE Solutions Inquiry              </option>
+
+
+              <option value="other">
+                Other              </option>
+
+
+            </select>
+
+          </div>
+
+          <div class="contact-form-field contact-form-field-full">
+
+            <label for="message">
+              Message
+              <span aria-hidden="true">*</span>
+            </label>
+
+            <textarea
+              id="message"
+              name="message"
+              rows="7"
+              maxlength="5000"
+              placeholder="Share a few details about the opportunity, challenge, timeline, or topic you would like to discuss."
+              required
+              aria-required="true"></textarea>
+
+          </div>
+
+        </div>
+
+        <div class="contact-form-submit">
+
+          <button
+            type="submit"
+            disabled
+            class="contact-form-button">
+            Send Your Message
+          </button>
+
+          <p class="contact-form-note">
+            Information submitted through this form will be used to respond
+            to your inquiry. Please do not include confidential or highly
+            sensitive information.
+
+            <a
+              href="/privacy"
+              target="_blank"
+              rel="noopener noreferrer">
+              View the Privacy Policy.
+              <span class="visually-hidden">
+                Opens in a new tab.
+              </span>
+            </a>
+          </p>
+
+        </div>
+
+      </form>
+      <noscript>
+        <p>The secure form requires JavaScript. Please <a href="mailto:tim@timgabaree.com">email Tim directly</a>.</p>
+      </noscript>
+
+    </div>
+
+  </section>
+
+<!-- End Contact Form Section -->
+
+<!-- Mobile QR Code Section -->
+
+  <section
+    class="contact-qr-section"
+    aria-labelledby="contact-qr-title">
+
+    <h2 id="contact-qr-title">
+      Viewing this on your computer?
+    </h2>
+
+    <p>
+      Scan this QR code with your phone
+      <br>
+      to open this page on your mobile device.
+    </p>
+
+    <a
+      href="/contact"
+      aria-label="Open Tim Gabaree’s contact page">
+
+      <img src="/media/qr-code-tim-gabaree-500x500.webp" alt="QR code to Tim Gabaree’s contact page" width="500" height="500" loading="lazy" fetchpriority="auto" decoding="async">
+    </a>
+
+  </section>
+
+<!-- End Mobile QR Code Section -->
+
+<!-- Related Website Section -->
+
+  <section
+    class="contact-related-site"
+    aria-labelledby="contact-related-site-title">
+
+    <h2
+      id="contact-related-site-title"
+      class="visually-hidden">
+      Related Website
+    </h2>
+
+    <p>
+      Looking for Carrie Gabaree, museum curator and public historian?
+      <br>
+
+      Visit
+
+      <a
+        href="https://carriegabaree.com/"
+        target="_blank"
+        rel="noopener noreferrer">
+        carriegabaree.com
+        <span class="visually-hidden">
+          — opens in a new tab
+        </span>
+      </a>
+    </p>
+
+  </section>
+
+<!-- End Related Website Section -->
+
+</main>
+</BaseLayout>

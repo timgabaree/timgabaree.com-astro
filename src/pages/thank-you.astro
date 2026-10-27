@@ -1,0 +1,153 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const structuredData = {"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://timgabaree.com/#website","url":"https://timgabaree.com/","name":"Tim Gabaree","description":"CIO and technology executive focused on AI strategy and enablement, cybersecurity, enterprise technology, infrastructure and operations, and technology value creation.","inLanguage":"en-US"},{"@type":"ImageObject","@id":"https://timgabaree.com/#primaryimage","url":"https://timgabaree.com/media/profile-pic-tim-gabaree-900x1200.webp","contentUrl":"https://timgabaree.com/media/profile-pic-tim-gabaree-900x1200.webp","width":900,"height":1200,"encodingFormat":"image/webp","caption":"Tim Gabaree, CIO and technology executive"},{"@type":"WebPage","@id":"https://timgabaree.com/thank-you#webpage","url":"https://timgabaree.com/thank-you","name":"Thank You | Tim Gabaree","description":"Thank you for contacting Tim Gabaree. Your message has been received and will be reviewed personally.","inLanguage":"en-US","datePublished":"2026-08-07T00:00:00-05:00","dateModified":"2026-08-19T00:00:00-05:00","isPartOf":{"@id":"https://timgabaree.com/#website"},"about":{"@id":"https://timgabaree.com/#person"}},{"@type":"Person","@id":"https://timgabaree.com/#person","name":"Tim Gabaree","givenName":"Tim","familyName":"Gabaree","url":"https://timgabaree.com/","image":{"@id":"https://timgabaree.com/#primaryimage"},"jobTitle":"CIO and Technology Executive","description":"CIO and technology executive focused on AI strategy and enablement, cybersecurity, enterprise technology, infrastructure and operations, and technology value creation.","email":"mailto:tim@timgabaree.com","telephone":"+1-571-762-3769","sameAs":["https://www.linkedin.com/in/timgabaree","https://github.com/timgabaree","https://timgabaree.blogspot.com","https://x.com/timgabaree","https://bsky.app/profile/timgabaree.bsky.social"],"spouse":{"@type":"Person","@id":"https://carriegabaree.com/#person","name":"Carrie Gabaree","url":"https://carriegabaree.com/","sameAs":["https://www.linkedin.com/in/carriegabaree"]},"affiliation":{"@type":"Organization","name":"RGE Solutions LLC","url":"https://rgesol.com/"},"memberOf":[{"@type":"Organization","name":"Private Directors Association"},{"@type":"Organization","name":"IEEE"},{"@type":"Organization","name":"ISC2"},{"@type":"Organization","name":"Project Management Institute"}],"alumniOf":[{"@type":"CollegeOrUniversity","name":"Purdue University Global"},{"@type":"CollegeOrUniversity","name":"University of Illinois Springfield"}],"hasCredential":[{"@type":"EducationalOccupationalCredential","name":"Master of Business Administration"},{"@type":"EducationalOccupationalCredential","name":"Certified Information Systems Security Professional"},{"@type":"EducationalOccupationalCredential","name":"Project Management Professional"},{"@type":"EducationalOccupationalCredential","name":"Wharton Corporate Governance Certificate"}],"knowsAbout":["AI Strategy and Enablement","Artificial Intelligence","Cybersecurity","Enterprise Technology","Infrastructure and Operations","Technology Value Creation","Enterprise Performance","Technology Strategy","Technology Investment","Technology Modernization","Enterprise Architecture","Cloud Computing","Vendor Rationalization","Post-Acquisition Integration","Program Recovery","Operating Model Improvement","Digital Transformation"],"knowsLanguage":["en"]}]};
+---
+
+<BaseLayout
+  page="thank-you"
+  title="Thank You | Tim Gabaree"
+  description="Thank you for contacting Tim Gabaree. Your message has been received and will be reviewed personally."
+  canonicalPath="/thank-you"
+  ogType="website"
+  image="/media/profile-pic-tim-gabaree-900x1200.webp"
+  imageAlt="Portrait of Tim"
+  preloadImage={undefined}
+  structuredData={structuredData}
+  scripts={["/js/contact-conversion.js"]}
+>
+<main
+  id="main-content"
+  class="thank-you-page">
+
+  <img src="/media/background-pic-architecture-1920x942.webp" alt="" width="1920" height="942" class="thank-you-background-image" loading="eager" fetchpriority="high" decoding="async">
+<!-- Thank-You Section -->
+
+  <section
+    class="thank-you-section"
+    aria-labelledby="thank-you-title">
+
+    <div class="thank-you-card">
+
+      <p class="thank-you-eyebrow">
+        Conversation Continued
+      </p>
+
+      <h1 id="thank-you-title">
+        Thank you.
+      </h1>
+
+      <p class="thank-you-lead">
+        Your message has been received successfully.
+      </p>
+
+      <p>
+        Thank you for taking the time to reach out. I review each message
+        personally and will respond as promptly as possible.
+      </p>
+
+      <p>
+        In the meantime, you are welcome to return to my executive contact
+        page, review my professional background, or connect with me directly
+        on LinkedIn.
+      </p>
+
+      <div class="thank-you-actions">
+
+        <a
+          href="/contact"
+          class="thank-you-button">
+          Return to Contact Page
+        </a>
+
+        <a
+          href="/"
+          class="thank-you-button">
+          View Executive Profile
+        </a>
+
+      </div>
+
+      <hr>
+
+      <section
+        class="thank-you-contact"
+        aria-labelledby="thank-you-direct-contact-title">
+
+        <h2 id="thank-you-direct-contact-title">
+          Need to reach out directly?
+        </h2>
+
+        <address class="thank-you-contact-links">
+
+          <a href="mailto:tim@timgabaree.com">
+
+            <span
+              class="thank-you-contact-icon"
+              aria-hidden="true">
+              <img
+                src="/media/contact-email-icon-50x50.webp"
+                width="50"
+                height="50"
+                alt="">
+            </span>
+
+            <span>
+              tim@timgabaree.com            </span>
+
+          </a>
+
+          <a href="tel:+15717623769">
+
+            <span
+              class="thank-you-contact-icon"
+              aria-hidden="true">
+              <img
+                src="/media/contact-telephone-icon-50x50.webp"
+                width="50"
+                height="50"
+                alt="">
+            </span>
+
+            <span>
+              571.762.3769            </span>
+
+          </a>
+
+          <a
+            href="https://www.linkedin.com/in/timgabaree"
+            target="_blank"
+            rel="me noopener noreferrer">
+
+            <span
+              class="thank-you-contact-icon"
+              aria-hidden="true">
+              <img
+                src="/media/contact-linkedin-icon-50x50.webp"
+                width="50"
+                height="50"
+                alt="">
+            </span>
+
+            <span>
+              Connect on LinkedIn
+
+              <span class="visually-hidden">
+                — opens in a new tab
+              </span>
+            </span>
+
+          </a>
+
+        </address>
+
+      </section>
+
+    </div>
+
+  </section>
+
+<!-- End Thank-You Section -->
+
+</main>
+</BaseLayout>
