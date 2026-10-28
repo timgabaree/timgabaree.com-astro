@@ -21,13 +21,14 @@ before this documentation-only cleanup. Browser access was confirmed under
 `timgabaree`; GitHub currently reports this repository as public. No visibility
 or account settings were changed during this review.
 
-The last recorded deployments are below, verified on October 27. This
-documentation review does not claim a new deployment or fresh Cloudflare audit.
+Production's version was rechecked before and after the October 28 staging
+deployment and is unchanged. Staging was updated October 28; the monitoring
+version remains the October 27 record, not a fresh monitoring audit.
 
 | Environment | Recorded version | State at last deployment |
 | --- | --- | --- |
 | Production | `d59fcf0b-ae40-4d91-88af-b8dec825bef6` | Live; monitoring, QR accessibility, mobile performance and privacy-spacing fixes |
-| Staging | `e178c625-fbbd-4f71-bed7-a79948acbdff` | Password-protected; monitoring hardening present, latest QR/performance updates not yet deployed |
+| Staging | `3f14b5fb-66f3-4578-8cfd-6aa5c88eb679` | Updated October 28 with QR/performance changes; password protection and hosted asset checks passed |
 | Email monitor | `6686f411-a606-4bd3-b265-be12cfc1dfbf` | Persistent primary/fallback failure status; automatic DOWN alert received and recovery recorded |
 
 Included features:
@@ -59,6 +60,21 @@ claim real delivery. See the operations guide for validation and deployment scop
 
 ## Latest recorded verification
 
+October 28 staging update from source `1154bdc`: zero Astro/TypeScript diagnostics,
+59 unit tests, 88 local runtime/build checks, 73 online staging checks and 29
+additional hosted QR/image/CSS checks passed. Homepage/About HTML, all four AVIF
+images and the stylesheet match the fresh staging build exactly. Optimized images
+return 401 without authentication; Google analytics remains disabled on staging.
+All 298 read-only live checks also passed; production's deployed version is unchanged.
+No contact email was submitted. After the owner handled Chrome's look-alike-address
+warning, authenticated browser review confirmed a single named QR link on Home
+and About: Tab advances to the phone link, Shift+Tab returns to the QR link, and
+Enter opens staging's contact page. Desktop layout and a 390x812 responsive
+preview were reviewed; Home and About have no horizontal overflow. The narrow
+homepage loads the 600-pixel AVIF portrait, while desktop loads the 900-pixel
+version. Google tag scripts remain absent. This is browser emulation, not a
+physical-phone test or a new PageSpeed measurement.
+
 The October 27 release passed 59 unit tests, 22 monitoring-runtime checks,
 328 production build/configuration checks, 88 local runtime checks,
 298 read-only live checks and 73 online staging checks. These are recorded
@@ -73,14 +89,13 @@ Lab scores vary and do not prove real-device performance or complete accessibili
 ## Remaining follow-up
 
 - Confirm the second GoDaddy archive has synced to Dropbox off-device.
-- Deploy the latest QR/performance changes to protected staging when requested.
 - Physical-phone testing remains deferred by the owner; desktop and responsive
   preview checks are recorded, not a completed phone test.
 - Continue Search Console indexing, analytics, certificate/uptime, Resend delivery
   and usage/quota reviews. Do not infer all pages are indexed from sitemap submission.
 
-No new scheduler, deployment, contact email, DNS change, GoDaddy change or
-monitoring-setting change is part of this documentation update.
+The October 28 deployment changed only staging. Production, GoDaddy, DNS,
+monitoring settings and credentials were unchanged; no contact email was sent.
 
 ## Project layout
 
