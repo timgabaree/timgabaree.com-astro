@@ -19,7 +19,10 @@ check(config.preview_urls, false, 'no public preview URLs');
 check(config.routes.length, 0, 'no live-domain routes');
 check(config.assets.directory, './dist-production', 'separate production assets');
 check(config.assets.run_worker_first, true, 'all assets behind launch gate');
-check(config.durable_objects.bindings[0].script_name, undefined, 'no cross-Worker state sharing');
+check(config.durable_objects.bindings[0].script_name, undefined, 'contact security state remains isolated');
+check(config.durable_objects.bindings[1].name, 'DELIVERY_STATUS', 'failure status binding');
+check(config.durable_objects.bindings[1].class_name, 'DeliveryStatus', 'failure status class');
+check(config.durable_objects.bindings[1].script_name, 'timgabaree-com-astro-email-monitor', 'only sanitized failure state is shared');
 for (const key of ['RESEND_API_KEY', 'CONTACT_FROM', 'CONTACT_TO', 'STAGING_PASSWORD', 'STAGING_USER']) {
   check(Object.hasOwn(config.vars, key), false, `${key} not embedded`);
 }

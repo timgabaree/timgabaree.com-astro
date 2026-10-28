@@ -1,5 +1,6 @@
 import { handleContact } from './contact.ts';
 import type { Env } from './contact.ts';
+import { persistMailIssue } from './monitoring.ts';
 export { ContactState } from './state.ts';
 
 const pages = 'about|contact|governance|privacy|technology-leadership|thank-you|value-creation';
@@ -108,6 +109,9 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     try { return secure(await route(request, env), request, env); }
     catch {
+      if (/^\/contact-(token|submit|conversion)(?:\.php|\/)?$/.test(new URL(request.url).pathname)) {
+        try { await persistMailIssue(env, 'contact_runtime_error'); } catch { /* Return failure, never fake success. */ }
+      }
       return secure(new Response('Temporarily unavailable. Please try again later.', { status: 503 }), request, env);
     }
   },

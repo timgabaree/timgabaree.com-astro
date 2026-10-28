@@ -1,8 +1,10 @@
 import { randomToken } from './state.ts';
+import { persistMailIssue } from './monitoring.ts';
 
 export interface Env {
   ASSETS: Fetcher;
   CONTACT_STATE: DurableObjectNamespace;
+  DELIVERY_STATUS?: DurableObjectNamespace;
   ENVIRONMENT: 'local' | 'staging' | 'production';
   CONTACT_MODE: 'dry-run' | 'resend';
   PRODUCTION_ENABLED?: string;
@@ -114,6 +116,7 @@ async function readBody(request: Request): Promise<string> {
 
 export async function sendMail(data: Record<string, string>, env: Env): Promise<boolean> {
   if (env.CONTACT_MODE !== 'resend' || !env.RESEND_API_KEY || !env.CONTACT_FROM || !env.CONTACT_TO) {
+    await persistMailIssue(env, 'send_configuration');
     return false;
   }
   const text = [
@@ -133,14 +136,18 @@ export async function sendMail(data: Record<string, string>, env: Env): Promise<
       body: JSON.stringify({
         from: env.CONTACT_FROM, to: [env.CONTACT_TO], reply_to: data.email,
         subject: `${env.ENVIRONMENT === 'production' ? '' : '[STAGING] '}Website inquiry: ${TOPICS[data.topic]}`,
+        tags: [{ name: 'application', value: 'timgabaree-contact' }, { name: 'environment', value: env.ENVIRONMENT }],
         text,
       }),
     });
-    if (!response.ok) return false;
+    if (!response.ok) { await persistMailIssue(env, 'send_rejected'); return false; }
     const result = await response.json<{ id?: string }>();
-    return typeof result.id === 'string' && result.id.length > 0;
+    const accepted = typeof result.id === 'string' && result.id.length > 0;
+    if (!accepted) await persistMailIssue(env, 'send_response_invalid');
+    return accepted;
   } catch {
     // Never log submitted personal data, credentials, or provider response bodies.
+    await persistMailIssue(env, 'send_timeout_or_network');
     return false;
   }
 }

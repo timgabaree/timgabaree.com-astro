@@ -427,6 +427,21 @@ const structuredData = {"@context":"https://schema.org","@graph":[{"@type":"WebS
       </p>
 
       <p>
+        To detect contact-email delivery problems, Resend sends signed delivery
+        events to a separate Cloudflare endpoint. It checks the event and records
+        only the failure category and site environment in application logs, not
+        names, email addresses, message contents, or provider response bodies.
+        A hashed event identifier prevents duplicate alerts for seven days and
+        is removed by routine cleanup within eight days. A failure category,
+        site environment, detection time, and random incident identifier remain
+        until the issue is reviewed and acknowledged. This also covers immediate
+        contact-email sending errors. Cloudflare retains operational logs under
+        its service settings. UptimeRobot checks public site availability,
+        certificate status, and a healthy/unhealthy email-failure status;
+        it does not receive contact-form submissions or incident details.
+      </p>
+
+      <p>
         This does not mean that inquiry emails disappear after those
         windows. Resend retains email content and delivery records under
         its <a href="https://resend.com/security/gdpr">service retention policy</a>, and copies may remain in the receiving
