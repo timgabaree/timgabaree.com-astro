@@ -172,6 +172,13 @@ grouped under seven pages. `/sitemap.xml` remains the crawler source, referenced
 by robots.txt. There is no XSLT dependency; `/sitemap.xsl` intentionally returns 404.
 Regression checks cover thumbnails, original-image links and page associations.
 
+For the dated Search Console results, see
+[Google indexing verification](../README.md#google-indexing-confirmed-october-28-2026).
+Compare the aggregate report's update date with individual URL Inspection results;
+older exclusion totals can lag newly indexed pages. Sitemap Success confirms
+processing, not that every discovered URL is indexed. Keep redirect/legacy-host
+examples separate from the current Astro URLs when reviewing exclusions.
+
 Calendly loads only after Schedule is activated. A native dialog, titled iframe,
 Close buttons, focus restoration and direct-link fallback provide keyboard access.
 Cross-origin iframe keys remain Calendly-controlled. QR images/captions form a

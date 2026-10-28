@@ -86,13 +86,34 @@ PageSpeed lab results: **mobile 96 performance / 100 accessibility**;
 and [desktop report](https://pagespeed.web.dev/analysis/https-timgabaree-com/sdtvb113p1?form_factor=desktop).
 Lab scores vary and do not prove real-device performance or complete accessibility.
 
+### Google indexing confirmed October 28, 2026
+
+Read-only Search Console URL Inspection confirmed **Page is indexed / URL is on
+Google** for `/governance`, `/technology-leadership`, `/value-creation` and the
+new HTML `/sitemap`. The three previously pending content pages were crawled by
+Googlebot smartphone on October 27; each reported a successful fetch, crawling
+and indexing allowed, and the inspected URL as Google's selected canonical.
+
+The submitted XML sitemap reports **Success**, last read October 27, with eight
+discovered pages. Discovery count is not an indexed-page count. The aggregate
+Page indexing report still has an October 22 update date and shows five indexed
+and ten excluded URLs; it has not caught up with these individual inspections.
+Its one "Crawled - currently not indexed" example is `https://hello.timgabaree.com/`,
+not an Astro page. The four other sitemap URLs were not individually re-inspected
+in this follow-up, so this is not a fresh eight-page indexing audit.
+
+No Request indexing, Validate fix, sitemap resubmission or configuration change
+was performed. The live site, GoDaddy and all email DNS were unchanged.
+
 ## Remaining follow-up
 
 - Confirm the second GoDaddy archive has synced to Dropbox off-device.
 - Physical-phone testing remains deferred by the owner; desktop and responsive
   preview checks are recorded, not a completed phone test.
 - Continue Search Console indexing, analytics, certificate/uptime, Resend delivery
-  and usage/quota reviews. Do not infer all pages are indexed from sitemap submission.
+  and usage/quota reviews. The previously pending content pages are now confirmed
+  indexed; allow the aggregate report to catch up rather than treating its old
+  totals as new failures. Do not infer indexing from sitemap discovery alone.
 
 The October 28 deployment changed only staging. Production, GoDaddy, DNS,
 monitoring settings and credentials were unchanged; no contact email was sent.
