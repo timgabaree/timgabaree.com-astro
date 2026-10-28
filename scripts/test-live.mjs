@@ -23,6 +23,11 @@ for (const page of [...pages, 'thank-you']) {
   assert.match(csp, /connect-src[^;]*https:\/\/cloudflareinsights\.com/); checks++;
   check(html.includes('href="/sitemap"'), true, 'HTML sitemap linked');
   check(html.includes('Staging site notice'), false, 'no staging notice');
+  if (page === '' || page === 'about') {
+    const qr = html.match(/<div class="qr-code-block">([\s\S]*?)<\/div>/)?.[1] ?? '';
+    check((qr.match(/<a\s/g) ?? []).length, 1, `${page || 'home'} unified QR link`);
+    check(qr.includes('Scan or click to connect'), true, 'QR caption retained');
+  }
   check(html.includes('googletagmanager.com/ns.html'), false, 'no consent-bypassing iframe');
   check(html.match(/<link rel="canonical" href="([^"]+)"/)?.[1], `${base}/${page}`, 'canonical');
   check(response.headers.get('x-content-type-options'), 'nosniff', 'nosniff');
@@ -51,6 +56,13 @@ for (const path of ['/not-a-real-launch-page', '/.env', '/includes/config.php', 
   await response.body?.cancel();
 }
 const robots = await (await request(`${base}/robots.txt`)).text();
+for (const file of ['architecture-1920', 'portrait-360', 'portrait-600', 'portrait-900']) {
+  const response = await request(`${base}/media/optimized/${file}.avif`);
+  check(response.status, 200, `${file} available`);
+  assert.match(response.headers.get('content-type') ?? '', /image\/avif/); checks++;
+  const size = (await response.arrayBuffer()).byteLength;
+  assert.ok(size > 1000 && size < (file.startsWith('architecture') ? 100_000 : 40_000), `${file} image budget`); checks++;
+}
 assert.match(robots, /Sitemap: https:\/\/timgabaree\.com\/sitemap.xml/); checks++;
 // Cloudflare may prepend managed bot-specific directives; validate our general group.
 assert.match(robots, /User-agent: \*\s+Allow: \//); checks++;

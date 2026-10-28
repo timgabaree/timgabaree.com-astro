@@ -13,6 +13,7 @@ interface Props {
   image?: string;
   imageAlt?: string;
   preloadImage?: string;
+  preloadImageType?: string;
   structuredData?: object;
   scripts?: string[];
   robots?: string;
@@ -27,6 +28,7 @@ const {
   image = '/media/profile-pic-tim-gabaree-900x1200.webp',
   imageAlt = 'Portrait of Tim Gabaree',
   preloadImage,
+  preloadImageType,
   structuredData,
   scripts = [],
   robots,
@@ -98,7 +100,7 @@ const imageUrl = new URL(image, siteUrl).toString();
       type="font/woff2"
       crossorigin
     />
-    {(preloadImage || meta?.preloadImage) && <link rel="preload" as="image" href={preloadImage || meta?.preloadImage} fetchpriority="high" />}
+    {(preloadImage || meta?.preloadImage) && <link rel="preload" as="image" href={preloadImage || meta?.preloadImage} type={preloadImageType} fetchpriority="high" />}
     <link rel="stylesheet" href="/css/style.css" />
 
     {structuredData && (

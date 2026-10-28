@@ -1,5 +1,5 @@
 import { Webhook } from 'svix';
-import { reportMailIssue } from './monitoring.ts';
+import { reportMailIssue, persistMailIssue, recordIssue, readDeliveryIncidents, deliveryStatusNames } from './monitoring.ts';
 import type { MailIssue } from './monitoring.ts';
 export { DeliveryStatus } from './delivery-status.ts';
 
@@ -50,15 +50,12 @@ export class MonitorEvent {
 
 async function handle(request: Request, env: MonitorEnv): Promise<Response> {
   const url = new URL(request.url);
-  if (url.search || !['/health', '/resend', '/delivery-status', '/admin/status', '/admin/acknowledge'].includes(url.pathname)) return new Response(null, { status: 404 });
+  if (url.search || !['/health', '/resend', '/delivery-status', '/admin/status', '/admin/acknowledge', '/admin/test'].includes(url.pathname)) return new Response(null, { status: 404 });
   if (!env.RESEND_WEBHOOK_SECRET || !env.DELIVERY_STATUS || !env.MONITOR_ADMIN_KEY) return new Response(null, { status: 503 });
-  const status = () => env.DELIVERY_STATUS.get(env.DELIVERY_STATUS.idFromName('contact-delivery'));
   if (url.pathname === '/delivery-status') {
     if (!['GET', 'HEAD'].includes(request.method)) return new Response(null, { status: 405 });
-    const response = await status().fetch('https://status.internal/status');
-    if (!response.ok) throw new Error('Status unavailable');
-    const { incident } = await response.json<{ incident: unknown }>();
-    return new Response(null, { status: incident ? 503 : 200 });
+    const statuses = await readDeliveryIncidents(env.DELIVERY_STATUS);
+    return new Response(null, { status: statuses.some(s => s.incident) ? 503 : 200 });
   }
   if (url.pathname.startsWith('/admin/')) {
     // No secrets in URLs. Constant-time digest comparison; no CORS or browser UI.
@@ -72,14 +69,35 @@ async function handle(request: Request, env: MonitorEnv): Promise<Response> {
     if (difference) return new Response(null, { status: 401 });
     if (url.pathname === '/admin/status') {
       if (request.method !== 'GET') return new Response(null, { status: 405 });
-      return status().fetch('https://status.internal/status');
+      const incidents = (await readDeliveryIncidents(env.DELIVERY_STATUS)).flatMap(s => s.incident ? [s.incident] : []);
+      return Response.json({ incident: incidents[0] ?? null, incidents });
     }
     if (request.method !== 'POST') return new Response(null, { status: 405 });
     if (!request.headers.get('Content-Type')?.toLowerCase().startsWith('application/json')) return new Response(null, { status: 415 });
     let data: any;
     try { data = JSON.parse(await boundedBody(request)); } catch { return new Response(null, { status: 400 }); }
+    if (url.pathname === '/admin/test') {
+      // Existing administrator authorization only. No public fault switch, secret
+      // changes, email submission, or shared/global fault state. The fixed test
+      // exercises the actual retry/fallback writer, and is identifiable for review.
+      if (data?.scenario !== 'primary-write-unavailable') return new Response(null, { status: 400 });
+      if ((await readDeliveryIncidents(env.DELIVERY_STATUS)).some(s => s.incident)) return new Response(null, { status: 409 });
+      const namespace = env.DELIVERY_STATUS;
+      const testNamespace = {
+        idFromName: (name: string) => namespace.idFromName(name),
+        get: (id: DurableObjectId) => id.equals(namespace.idFromName(deliveryStatusNames[0]))
+          ? { fetch: async () => new Response(null, { status: 503 }) }
+          : namespace.get(id),
+      } as DurableObjectNamespace;
+      await persistMailIssue({ ENVIRONMENT: 'staging', DELIVERY_STATUS: testNamespace }, 'monitor_self_test');
+      return new Response(null, { status: 204 });
+    }
     if (typeof data?.revision !== 'string' || !/^[a-f0-9-]{36}$/.test(data.revision)) return new Response(null, { status: 400 });
-    return status().fetch('https://status.internal/acknowledge', { method: 'POST', body: JSON.stringify({ revision: data.revision }) });
+    const found = (await readDeliveryIncidents(env.DELIVERY_STATUS)).find(s => s.incident?.revision === data.revision);
+    if (!found) return new Response(null, { status: 409 });
+    return env.DELIVERY_STATUS.get(env.DELIVERY_STATUS.idFromName(found.name)).fetch('https://status.internal/acknowledge', {
+      method: 'POST', body: JSON.stringify({ revision: data.revision }),
+    });
   }
   if (url.pathname === '/health') {
     return new Response(null, { status: ['GET', 'HEAD'].includes(request.method) ? 200 : 405 });
@@ -108,11 +126,7 @@ async function handle(request: Request, env: MonitorEnv): Promise<Response> {
       event.data.to[0]?.toLowerCase() !== 'tim@timgabaree.com') return new Response(null, { status: 204 });
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(id));
   const key = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
-  const response = await status().fetch('https://status.internal/record', {
-    method: 'POST', body: JSON.stringify({ key, environment, issue: event.type }),
-  });
-  if (!response.ok) throw new Error('Dedup unavailable');
-  const { fresh } = await response.json<{ fresh: boolean }>();
+  const { fresh } = await recordIssue(env.DELIVERY_STATUS, deliveryStatusNames[0], { key, environment, issue: event.type });
   if (fresh) reportMailIssue(environment, event.type as MailIssue);
   return new Response(null, { status: 204 });
 }
@@ -122,7 +136,10 @@ export default {
     let response: Response;
     try { response = await handle(request, env); }
     catch {
-      reportMailIssue('production', 'monitor_runtime_error');
+      // A short-lived error remains visible to the next external poll even after
+      // recovery. If the primary object is unavailable, persist on the fallback.
+      try { await persistMailIssue({ ENVIRONMENT: 'production', DELIVERY_STATUS: env.DELIVERY_STATUS }, 'monitor_runtime_error'); }
+      catch { /* Both stores unavailable: preserve the error response and log. */ }
       response = new Response(null, { status: 503 });
     }
     // Responses returned from another Worker/DO have immutable headers in workerd.

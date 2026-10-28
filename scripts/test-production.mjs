@@ -70,6 +70,15 @@ for (const path of internal) {
   assert.ok(exists.some(Boolean), `Missing linked page or asset: ${path}`); checks++;
 }
 const robots = await readFile(join(output, 'robots.txt'), 'utf8');
+const home = await readFile(join(output, 'index.html'), 'utf8');
+for (const file of ['architecture-1920', 'portrait-360', 'portrait-600', 'portrait-900']) {
+  check(home.includes(`/media/optimized/${file}.avif`), true, `${file} linked`);
+  const bytes = (await stat(join(output, `media/optimized/${file}.avif`))).size;
+  assert.ok(bytes > 1000 && bytes < (file.startsWith('architecture') ? 100_000 : 40_000), `${file} image budget`); checks++;
+}
+assert.match(home, /href="\/media\/optimized\/architecture-1920.avif" type="image\/avif"/); checks++;
+assert.ok((await stat(join(output, 'css/style.css'))).size < (await stat(join(root, 'public/css/style.css'))).size,
+  'published stylesheet minified without changing readable source'); checks++;
 assert.doesNotMatch(robots, /Disallow:\s*\//); checks++;
 assert.match(robots, /Sitemap: https:\/\/timgabaree\.com\/sitemap.xml/); checks++;
 const sitemap = await readFile(join(output, 'sitemap.xml'), 'utf8');

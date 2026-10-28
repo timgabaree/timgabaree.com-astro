@@ -12,7 +12,8 @@ const structuredData = {"@context":"https://schema.org","@graph":[{"@type":"WebS
   ogType="profile"
   image="/media/profile-pic-tim-gabaree-900x1200.webp"
   imageAlt="Portrait of Tim"
-  preloadImage="/media/background-pic-architecture-1920x942.webp"
+  preloadImage="/media/optimized/architecture-1920.avif"
+  preloadImageType="image/avif"
   structuredData={structuredData}
   scripts={["/js/results-carousel.js"]}
 >
@@ -29,7 +30,10 @@ const structuredData = {"@context":"https://schema.org","@graph":[{"@type":"WebS
       id="intro"
       class="home-intro-section">
 
-      <img src="/media/background-pic-architecture-1920x942.webp" alt="" width="1920" height="942" class="home-section-background-image" loading="eager" fetchpriority="high" decoding="async">
+      <picture class="home-section-background-image">
+        <source srcset="/media/optimized/architecture-1920.avif" type="image/avif">
+        <img src="/media/background-pic-architecture-1920x942.webp" alt="" width="1920" height="942" loading="eager" fetchpriority="high" decoding="async">
+      </picture>
       <div class="home-intro-text-content-block">
 
         <header class="home-intro-title-block">
@@ -193,8 +197,12 @@ const structuredData = {"@context":"https://schema.org","@graph":[{"@type":"WebS
 
       <div class="home-intro-profile-picture-block">
 
-        <img src="/media/profile-pic-tim-gabaree-900x1200.webp" alt="Portrait of Tim" width="900" height="1200" aria-describedby="image-description-profile-1" class="home-intro-profile-picture-img home-intro-profile-picture-img-main" loading="eager" fetchpriority="high" decoding="async"><span id="image-description-profile-1" class="visually-hidden">Head-and-shoulders professional portrait of Tim smiling at the camera. He has short gray and light-brown hair and rectangular dark-framed glasses, and wears a light blue collared shirt beneath a dark blazer. The softly blurred background shows a bright indoor setting.</span>
-        <img src="/media/profile-pic-tim-gabaree-in-the-morning-400x534.webp" alt="" width="400" height="534" class="home-intro-profile-picture-img home-intro-profile-picture-img-hover" loading="eager" fetchpriority="high" decoding="async">
+        <picture>
+          <source type="image/avif" srcset="/media/optimized/portrait-360.avif 360w, /media/optimized/portrait-600.avif 600w, /media/optimized/portrait-900.avif 900w" sizes="(max-width: 768px) 300px, (max-width: 1128px) 320px, 550px">
+          <img src="/media/profile-pic-tim-gabaree-900x1200.webp" alt="Portrait of Tim" width="900" height="1200" aria-describedby="image-description-profile-1" class="home-intro-profile-picture-img home-intro-profile-picture-img-main" loading="eager" fetchpriority="high" decoding="async">
+        </picture>
+        <span id="image-description-profile-1" class="visually-hidden">Head-and-shoulders professional portrait of Tim smiling at the camera. He has short gray and light-brown hair and rectangular dark-framed glasses, and wears a light blue collared shirt beneath a dark blazer. The softly blurred background shows a bright indoor setting.</span>
+        <img src="/media/profile-pic-tim-gabaree-in-the-morning-400x534.webp" alt="" width="400" height="534" class="home-intro-profile-picture-img home-intro-profile-picture-img-hover" loading="lazy" fetchpriority="low" decoding="async">
       </div>
 
     </div>
@@ -1050,24 +1058,15 @@ const structuredData = {"@context":"https://schema.org","@graph":[{"@type":"WebS
 
         <div class="qr-code-block">
 
-          <div class="qr-code-stack">
-
-            <a
+            <a class="qr-code-stack qr-code-caption-link"
               href="/contact"
               aria-label="Open Tim Gabaree’s contact page">
 
-              <img src="/media/qr-code-tim-gabaree-500x500.webp" alt="QR code to Tim Gabaree’s contact page" width="500" height="500" loading="lazy" fetchpriority="auto" decoding="async">
-            </a>
-
-            <p class="qr-code-caption">
-              <a
-                class="qr-code-caption-link"
-                href="/contact">
+              <span><img src="/media/qr-code-tim-gabaree-500x500.webp" alt="QR code to Tim Gabaree’s contact page" width="500" height="500" loading="lazy" fetchpriority="auto" decoding="async"></span>
+            <span class="qr-code-caption">
                 Scan or click to connect
-              </a>
-            </p>
-
-          </div>
+            </span>
+            </a>
 
         </div>
 

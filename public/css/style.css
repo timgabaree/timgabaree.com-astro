@@ -610,7 +610,8 @@ a.contactLink:hover {
   box-shadow: 0 4px 6px var(--shadow-soft);
 }
 
-.home-section-background-image {
+.home-section-background-image,
+.home-section-background-image img {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -753,24 +754,20 @@ a.contactLink:hover {
 @keyframes home-intro-slide-in-up {
   from {
     transform: translateY(100%);
-    opacity: 0;
   }
 
   to {
     transform: translateY(0);
-    opacity: 1;
   }
 }
 
 @keyframes home-intro-slide-in-right {
   from {
     transform: translateX(100%);
-    opacity: 0;
   }
 
   to {
     transform: translateX(0);
-    opacity: 1;
   }
 }
 

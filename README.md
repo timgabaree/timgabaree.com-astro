@@ -8,6 +8,39 @@ GoDaddy Web Hosting Deluxe is shared: `rgesol.com` is the primary domain, and
 `timgabaree.com` and the other sites are hosted beneath that account. Moving this
 site must not change or cancel the shared account or affect its other domains.
 
+## Current release status — October 27, 2026
+
+This release records the deployed monitoring hardening, homepage/About QR
+accessibility fix, mobile image/rendering optimization, and updated operating
+notes. Older verification records below are historical snapshots, not current
+deployment instructions or unresolved launch gates.
+
+| Environment | Deployed version | Status |
+| --- | --- | --- |
+| Production | `d59fcf0b-ae40-4d91-88af-b8dec825bef6` | Live; includes monitoring, QR, performance and privacy-spacing fixes |
+| Staging | `e178c625-fbbd-4f71-bed7-a79948acbdff` | Private; monitoring hardening deployed; latest QR/performance changes built/tested locally only |
+| Email monitor | `6686f411-a606-4bd3-b265-be12cfc1dfbf` | Retries and persistent fallback deployed; automatic alert received and recovery verified |
+
+- The older Cloudflare SQL email-failure alert is disabled, not deleted.
+  UptimeRobot is the verified primary alert path; Cloudflare logging and
+  certificate alerts remain enabled. See the monitoring section for limits and
+  safe incident acknowledgement.
+- Latest homepage PageSpeed lab scores: mobile 96 performance / 100 accessibility;
+  desktop 100 / 100. Both have 100 best practices and SEO. The linked reports and
+  visual/keyboard verification are recorded below; these are not real-device or
+  field-performance guarantees.
+- Current checks: 59 unit tests, 22 monitoring runtime checks, 328 production
+  build/configuration checks, 88 local site runtime checks, 298 read-only live
+  checks, and 73 online staging checks. No new contact email is needed for this
+  source-control release.
+- GoDaddy/shared hosting, all email DNS, credentials and analytics-consent rules
+  are unchanged. Generated builds, image derivatives, archives, local credentials
+  and screenshots are not committed to this source repository.
+- Remaining follow-up: user verification of Dropbox cloud synchronization,
+  optional physical-phone testing, and normal indexing/analytics/monitoring
+  review. Deploying the current source to staging is a separate action; a Git
+  push does not publish either environment.
+
 ## Develop and test
 
 ### Compact cookie notice and XSLT-free sitemap (2026-10-27)
@@ -70,6 +103,7 @@ npm ci
 npm run dev
 npm run check
 npm test
+npm run test:monitoring
 npm run build
 npm run test:integration
 npm run preview
@@ -171,8 +205,9 @@ Never serve a legacy build through a generic static server: it contains PHP sour
 ## Production deployment
 
 The explicitly approved cutover completed October 27, 2026 (America/Chicago;
-October 28 UTC). Production version `51d4ce62-df27-462a-a4d8-48c9a2fbc58a`
-serves both `timgabaree.com` and `www.timgabaree.com` as Cloudflare Custom Domains.
+October 28 UTC). The initial launch version was `51d4ce62-df27-462a-a4d8-48c9a2fbc58a`;
+the current version is listed in Current release status above. Production serves
+both `timgabaree.com` and `www.timgabaree.com` as Cloudflare Custom Domains.
 `PRODUCTION_ENABLED=true`; workers.dev and preview URLs remain disabled. Staging
 retains authentication and its separate credentials/state. Email secrets were
 not changed during cutover. Source pushes do not automatically deploy.
@@ -288,7 +323,8 @@ UptimeRobot Solo 10 is active. The homepage monitor has certificate-error checks
 and expiry reminders at 30, 14, 7, and 0 days, with email alerts to
 `tim@timgabaree.com`. Public homepage, contact-page and PDF checks run every minute.
 The notification destination test was sent; that is not a simulated expired
-certificate. Certificate data collection must also be checked in the dashboard.
+certificate. Certificate data was populated during launch verification; continue
+checking renewal/expiry status in the dashboard.
 The separate receiver's `/health` endpoint is also checked every minute by
 UptimeRobot monitor `804451011` and has reported Up.
 
@@ -298,7 +334,7 @@ It has no site assets, email sending credentials, custom domains, or live routes
 Public probes are `/health` (configuration health) and `/delivery-status`
 (200 for no unacknowledged failure, 503 for a latched failure or unavailable state).
 They return no incident details. `/resend` accepts only verified signed POST events.
-`/admin/status` and `/admin/acknowledge` require a separate bearer secret;
+`/admin/status`, `/admin/acknowledge`, and `/admin/test` require a separate bearer secret;
 acknowledgement is POST-only and checks the reviewed incident revision.
 `RESEND_WEBHOOK_SECRET` and `MONITOR_ADMIN_KEY` are Cloudflare secrets, never Git files.
 The Resend subscription includes `email.failed`, `email.bounced`,
@@ -310,12 +346,14 @@ recipient, and deduplicates event IDs using hashed keys for seven days. It does
 not store webhook bodies. Unsupported events are silently ignored; invalid
 signatures are rejected without logging attacker-controlled values. Signed
 delivery failures and immediate sending failures emit the same fixed marker.
-Cloudflare's `timgabaree.com contact email failure` threshold monitor watches that
-marker only in the three Astro Workers and emails `tim@timgabaree.com`, independent
-of Resend. This older SQL monitor is **not verified** and is not the primary alert
-path. Its diagnostic evaluation interval is five minutes, average over 15 minutes,
-threshold above zero, with one-hour repeat limits. Ingestion and provider event
-latency can delay notifications.
+Cloudflare's older `timgabaree.com contact email failure` SQL threshold monitor
+(ID `5956322cda36451d95eac81481ac9311`) is **disabled, not deleted**, as approved
+on October 27 after the fallback test and confirmed automatic UptimeRobot email.
+Its saved query remains scoped to the fixed marker in the three Astro Workers,
+with destination `tim@timgabaree.com`, five-minute evaluation, 15-minute average,
+threshold above zero, and one-hour repeat limits. Its automatic notification
+delivery was never verified. Cloudflare logging remains enabled and unchanged;
+UptimeRobot is the verified operational failure-alert path.
 
 #### Persistent failure status and UptimeRobot
 
@@ -323,7 +361,7 @@ The primary failure monitor is UptimeRobot `804451162`, named
 `timgabaree.com - Contact email failures`, checking `/delivery-status` every minute
 with immediate email alerts to `tim@timgabaree.com` and hourly reminders. It accepts
 2xx only and does not follow redirects. Receiver health is monitored separately.
-The current monitoring Worker version is `d6553066-9888-46aa-a77c-0ca5c18c78f4`.
+The current monitoring Worker version is `6686f411-a606-4bd3-b265-be12cfc1dfbf`.
 
 `DeliveryStatus` atomically stores event dedupe and the latest incident. Signed
 provider failures and immediate sending errors latch unhealthy until reviewed;
@@ -333,6 +371,54 @@ Hashed event IDs dedupe for seven days, with bounded cleanup scheduled within ei
 days. Acknowledgement removes the incident but retains dedupe so a provider retry
 does not reopen it. A newer failure changes the revision, preventing an older
 acknowledgement from clearing it. Existing contact-security state is not shared.
+
+Monitoring hardening (October 27, 2026): incident writes retry up to three times
+with fresh stubs, a three-second timeout per attempt, and an unchanged dedupe key.
+If the primary `contact-delivery` object cannot record an immediate application
+or receiver-runtime failure, the writer uses a separate `contact-delivery-fallback`
+object in the existing namespace. Both objects are checked by the unchanged
+UptimeRobot URL; either incident or an unreadable state returns 503. Receiver
+exceptions are now persisted, so a brief failure remains visible after recovery.
+Signed-provider writes remain retryable (503), with the receiver error latched
+through this fallback path. Admin status lists both incidents, and each exact
+revision must be reviewed and acknowledged separately. Clearing one cannot clear
+the other or a newer failure.
+
+This is object-level redundancy, not a second storage provider. A simultaneous
+failure of both Cloudflare objects still produces an error and sanitized log;
+an outage that prevents all writes and ends between external probes can still
+escape detection. UptimeRobot provides independent polling and email delivery,
+not a guarantee that every failure or every missing inquiry can be detected.
+
+Run `npm run test:monitoring` for local workerd tests without email or remote
+state changes. The authenticated hosted diagnostic is deliberately explicit:
+`node scripts/email-monitor-admin.mjs test --send-alert`. It rejects an existing
+incident and injects a primary-write failure only into that request, recording
+the fixed staging `monitor_self_test` issue in the real fallback. This creates an
+automatic UptimeRobot alert; verify it before acknowledging its exact revision.
+It does not send a contact email, change credentials, or enable a public fault switch.
+
+Hosted hardening verification on October 27 (October 28 UTC): the diagnostic at
+`2026-10-28T02:47:27.840Z` exhausted the intentionally unavailable primary writer
+and persisted `monitor_self_test` in the fallback. `/delivery-status` returned
+503 with an empty body while `/health` remained 200. UptimeRobot incident
+`373664311771830023` confirmed DOWN at 21:48:34 America/Chicago and recorded
+`Email sent to tim — SUCCESS` at 21:48:35. Tim confirmed receipt of this new
+automatic DOWN alert. Only test revision `e3b67c3d-7837-431f-9681-ea92cd1c1deb`
+was acknowledged; both incident slots then returned empty and the public status
+returned 200. No contact email was submitted.
+UptimeRobot confirmed recovery at 21:50:44 America/Chicago and recorded the
+recovery email as SUCCESS at 21:50:46; this incident is Resolved. The DOWN email
+has inbox confirmation; recovery email dispatch is verified in the dashboard.
+
+Deployments: production `e0e2c6f7-736d-4013-b091-55b0c071352f`, staging
+`e178c625-fbbd-4f71-bed7-a79948acbdff`, monitoring version above. Passed: 55 unit
+tests, 22 local monitoring runtime checks, 88 Cloudflare runtime/build checks,
+317 production configuration/build checks, 73 online staging checks, and 282
+live checks after clearing the diagnostic. The live check during the intentional
+incident correctly failed at the 503 probe; the post-test rerun passed.
+UptimeRobot settings, Cloudflare logging and certificate notifications, GoDaddy,
+and all email DNS were left unchanged. No DNS changes were made.
 
 To review an incident, use Node from `.nvmrc`:
 
@@ -347,7 +433,7 @@ directory and mode 0600 file, outside Dropbox/Git), or `MONITOR_ADMIN_KEY_FILE`.
 Never put the key in a URL, shell argument, screenshot, or notes. A 200 status means
 no unresolved *reported* failure, not proof that every inquiry reached an inbox.
 
-Automatic alert test on October 27: UptimeRobot first reported Up. A signed,
+Earlier pre-cutover automatic alert test on October 27: UptimeRobot first reported Up. A signed,
 synthetic staging `email.failed` event at `2026-10-28T01:11:52.864Z` was accepted
 with 204, including its duplicate. `/delivery-status` became 503 while `/health`
 remained 200. UptimeRobot confirmed Down at 20:14:08 America/Chicago and recorded
@@ -366,14 +452,16 @@ The temporary signing-secret and read-only diagnostic-token files were deleted
 after verification. The permanent acknowledgement key remains mode 0600 outside
 Dropbox/Git. None of these three secrets appeared in Git-visible files. The
 diagnostic token itself retains its existing short expiry; deleting its local
-copy does not revoke it. Live DNS and GoDaddy were not changed; production stayed
-disabled and its public workers.dev URL returned 404, while live PHP returned 200.
+copy does not revoke it. During that earlier pre-cutover test, live DNS and GoDaddy
+were not changed; production was still disabled and its public workers.dev URL
+returned 404, while live PHP returned 200. The later approved cutover supersedes
+that historical access state.
 
 #### Earlier Cloudflare SQL-monitor diagnosis (historical)
 
 The following records the earlier investigation, before the persistent-status
 monitor above was implemented and its automatic DOWN alert received. The older
-SQL rule remains unverified; it is not the primary alert path or a substitute for
+SQL rule's delivery remained unverified and it is now disabled; it is not a substitute for
 the verified UptimeRobot check. References below to pending verification and
 temporary local credentials describe that earlier state.
 
@@ -527,8 +615,14 @@ An independent extraction matched the recorded remote before/after file hashes.
 No live restoration or complete Apache runtime restoration was performed. No
 site-specific database dependency or active hosting-user cron entry was identified.
 The archive excludes account-wide services, mailboxes and TLS private keys; it is
-access-restricted but not independently encrypted. Make a second protected copy
-before any eventual removal of the GoDaddy source, which is not authorized here.
+access-restricted but not independently encrypted. A second, plain ZIP archive
+was subsequently created at the user's explicit request (no password):
+`/Volumes/StudioStack NVMe/Dropbox/Work Files/Websites/Archive/timgabaree.com-GoDaddy-2026-10-27/godaddy-timgabaree.com-backup.zip`.
+Its SHA-256 is `94e42aeb8336284eac08d426ec21dbf385dbccb7fe23521612a58c4202505174`.
+The checksum and ZIP integrity were rechecked for this source-control release.
+The user will verify Dropbox cloud synchronization later; a local copy does not
+prove off-device sync. Both archives stay outside Git. No GoDaddy source removal
+or hosting cancellation is authorized.
 The original archive report is historical: its TLS 1.0 note and older test counts
 predate the later TLS hardening and this production refresh.
 
@@ -548,6 +642,52 @@ Hosting Deluxe account. Changing website DNS later does not require removing
 those files or cancelling hosting.
 Restore website traffic to GoDaddy before re-locking Astro: disabling Astro alone
 while its domain bindings remain active would return 503 instead of restoring PHP.
+
+## Homepage accessibility and mobile performance (October 27, 2026)
+
+Published production version `d59fcf0b-ae40-4d91-88af-b8dec825bef6` after local
+visual and keyboard checks. The homepage and About page now use a single contact
+link around the QR image and caption, preserving the original image/caption
+positions and visible text while eliminating adjacent undersized targets.
+
+`scripts/optimize-images.mjs` generates AVIF display derivatives before
+`npm run dev`, `npm start`, and the normal staging/production builds. Generated files in
+`public/media/optimized/` are ignored by Git and recreated from the untouched
+original WebP files. The originals remain the browser fallback and continue to
+serve the sitemap and social metadata. The background stays 1920x942 and drops
+to 84,188 bytes; portrait variants are 360/600/900 pixels wide, with the 600-wide
+version at 17,821 bytes. The preload matches the AVIF source and its MIME type.
+The hidden hover portrait is low priority. Published CSS is minified; readable
+source remains intact. Slide and fade keep their original timings but no longer
+both animate opacity. Reduced-motion behavior is preserved.
+
+Fresh PageSpeed report `sdtvb113p1`, captured approximately 21:56 America/Chicago:
+
+| Metric | Earlier mobile | Updated mobile | Updated desktop |
+| --- | --- | --- | --- |
+| Performance | 84 | 96 | 100 |
+| Accessibility | 96 | 100 | 100 |
+| Best practices / SEO | 100 / 100 | 100 / 100 | 100 / 100 |
+| Largest Contentful Paint | 3.8 s | 2.6 s | 0.7 s |
+| Speed Index | 5.2 s | 3.0 s | 0.8 s |
+| Blocking time / layout shift | 0 / 0 | 0 / 0 | 0 / 0 |
+
+[Mobile report](https://pagespeed.web.dev/analysis/https-timgabaree-com/sdtvb113p1?form_factor=mobile)
+and [desktop report](https://pagespeed.web.dev/analysis/https-timgabaree-com/sdtvb113p1?form_factor=desktop).
+These are lab results, not field data or a guarantee of future scores. Automated
+accessibility does not replace manual testing. Additional image compression is
+still suggested by Lighthouse; the current settings preserve the design and
+image detail rather than treating a perfect speed score as the only goal.
+
+Verification: 59 unit tests, 328 production configuration/build checks, 88 local
+Cloudflare runtime/build checks, and 298 read-only live checks passed. Desktop
+before/after review preserved layout and QR spacing. A 390x812 phone preview had
+no horizontal overflow and selected the 600-wide portrait. The QR link has one
+keyboard stop on both pages; Enter opened the contact page on the homepage test.
+Staging was built/tested locally but not redeployed in this performance pass.
+No contact email, DNS, GoDaddy, analytics-consent, or monitoring-settings changes
+were made. These changes and the monitoring hardening are included in the
+user-approved GitHub source-control release; pushing source does not redeploy.
 
 ## Project structure
 

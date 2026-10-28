@@ -3,9 +3,10 @@ import assert from 'node:assert/strict';
 import { Webhook } from 'svix';
 import monitor, { DeliveryStatus } from '../worker/email-monitor.ts';
 import { sendMail } from '../worker/contact.ts';
+import { persistMailIssue } from '../worker/monitoring.ts';
 
 const secret = 'whsec_' + Buffer.from('synthetic-test-only-key-32-bytes!!').toString('base64');
-function env() {
+function fixture() {
   const values = new Map();
   let queue = Promise.resolve(), alarm = null;
   const storage = {
@@ -19,13 +20,18 @@ function env() {
     },
   };
   let object = new DeliveryStatus({ storage });
+  return { values, storage, alarm: () => object.alarm(), restart: () => { object = new DeliveryStatus({ storage }); },
+    fetch: (url, options) => object.fetch(new Request(url, options)) };
+}
+function env() {
+  const primary = fixture(), fallback = fixture();
   return {
     RESEND_WEBHOOK_SECRET: secret, MONITOR_ADMIN_KEY: 'test-only-admin-key',
-    __values: values, __storage: storage, __alarm: () => object.alarm(),
-    __restart: () => { object = new DeliveryStatus({ storage }); },
+    __values: primary.values, __fallback: fallback.values, __storage: primary.storage, __alarm: primary.alarm,
+    __restart: () => { primary.restart(); fallback.restart(); },
     DELIVERY_STATUS: {
-      idFromName: (name) => name,
-      get: () => ({ fetch: (url, options) => object.fetch(new Request(url, options)) }),
+      idFromName: name => ({ name, equals: other => name === other.name }),
+      get: id => ({ fetch: (id.name === 'contact-delivery' ? primary : fallback).fetch }),
     },
   };
 }
@@ -197,10 +203,94 @@ test('cleanup removes expired hashes without clearing the incident and paginates
   assert.equal((await monitor.fetch(statusRequest(), e)).status, 503);
 });
 
-test('admin proxy copies immutable upstream headers before adding safety headers', async () => {
+test('malformed status fails closed without exposing upstream redirects', async t => {
+  t.mock.method(console, 'error', () => {});
   const e = { ...env(), DELIVERY_STATUS: { idFromName: x => x, get: () => ({
     fetch: async () => Response.redirect('https://example.invalid/'),
   }) } };
   const response = await monitor.fetch(adminRequest('status'), e);
+  assert.equal(response.status, 503);
   assert.equal(response.headers.get('Cache-Control'), 'no-store');
+});
+
+test('a transient status-read exception is durably latched after recovery and restart', async t => {
+  t.mock.method(console, 'error', () => {});
+  const e = env(), original = e.DELIVERY_STATUS.get;
+  let fail = true;
+  e.DELIVERY_STATUS.get = id => ({ fetch: async (url, options) => {
+    if (fail && new URL(url).pathname === '/status') { fail = false; throw Error('PRIVATE'); }
+    return original(id).fetch(url, options);
+  } });
+  assert.equal((await monitor.fetch(statusRequest(), e)).status, 503);
+  e.__restart();
+  assert.equal((await monitor.fetch(statusRequest(), e)).status, 503);
+  assert.equal(e.__values.get('incident').issue, 'monitor_runtime_error');
+  const revision = e.__values.get('incident').revision;
+  assert.equal((await monitor.fetch(adminRequest('acknowledge', { revision }), e)).status, 204);
+  assert.equal((await monitor.fetch(statusRequest(), e)).status, 200);
+});
+
+test('primary write outage persists on separate fallback and survives recovered primary and restart', async t => {
+  t.mock.method(console, 'error', () => {});
+  const e = env(), original = e.DELIVERY_STATUS.get;
+  let writes = 0;
+  e.DELIVERY_STATUS.get = id => ({ fetch: async (url, options) => {
+    if (id.name === 'contact-delivery' && new URL(url).pathname === '/record') {
+      writes++; return new Response(null, { status: 503 });
+    }
+    return original(id).fetch(url, options);
+  } });
+  await persistMailIssue({ ...e, ENVIRONMENT: 'production' }, 'send_rejected');
+  assert.equal(writes, 3);
+  assert.equal(e.__values.get('incident'), undefined);
+  assert.equal(e.__fallback.get('incident').issue, 'send_rejected');
+  e.DELIVERY_STATUS.get = original; e.__restart();
+  assert.equal((await monitor.fetch(statusRequest(), e)).status, 503);
+  const revision = e.__fallback.get('incident').revision;
+  assert.equal((await monitor.fetch(adminRequest('acknowledge', { revision }), e)).status, 204);
+  assert.equal((await monitor.fetch(statusRequest(), e)).status, 200);
+});
+
+test('lost write response retries with the same key and does not create a second incident', async t => {
+  t.mock.method(console, 'error', () => {});
+  const e = env(), original = e.DELIVERY_STATUS.get;
+  let firstRevision, writes = 0;
+  e.DELIVERY_STATUS.get = id => ({ fetch: async (url, options) => {
+    const result = await original(id).fetch(url, options);
+    if (new URL(url).pathname === '/record' && ++writes === 1) {
+      firstRevision = e.__values.get('incident').revision;
+      throw Error('lost response');
+    }
+    return result;
+  } });
+  await persistMailIssue({ ...e, ENVIRONMENT: 'production' }, 'send_rejected');
+  assert.equal(writes, 2);
+  assert.equal(e.__values.get('incident').revision, firstRevision);
+  assert.equal(e.__fallback.get('incident'), undefined);
+});
+
+test('two-store acknowledgement never clears the other or a newer incident', async t => {
+  t.mock.method(console, 'error', () => {});
+  const e = env();
+  const test = await monitor.fetch(adminRequest('test', { scenario: 'primary-write-unavailable' }), e);
+  assert.equal(test.status, 204);
+  const fallbackRevision = e.__fallback.get('incident').revision;
+  await monitor.fetch(request(), e);
+  const summary = await (await monitor.fetch(adminRequest('status'), e)).json();
+  assert.equal(summary.incidents.length, 2);
+  assert.equal((await monitor.fetch(adminRequest('acknowledge', { revision: fallbackRevision }), e)).status, 204);
+  assert.equal((await monitor.fetch(statusRequest(), e)).status, 503);
+  assert.equal(e.__values.get('incident').issue, 'email.failed');
+});
+
+test('diagnostic test requires existing admin credentials, exact POST scenario, and healthy baseline', async t => {
+  t.mock.method(console, 'error', () => {});
+  const e = env();
+  assert.equal((await monitor.fetch(new Request('https://monitor.example/admin/test', { method: 'POST' }), e)).status, 401);
+  assert.equal((await monitor.fetch(adminRequest('test'), e)).status, 405);
+  assert.equal((await monitor.fetch(adminRequest('test', { scenario: 'arbitrary' }), e)).status, 400);
+  assert.equal((await monitor.fetch(adminRequest('test', { scenario: 'primary-write-unavailable' }), e)).status, 204);
+  assert.equal(e.__fallback.get('incident').issue, 'monitor_self_test');
+  assert.equal((await monitor.fetch(adminRequest('test', { scenario: 'primary-write-unavailable' }), e)).status, 409);
+  assert.equal((await monitor.fetch(statusRequest(), e)).status, 503);
 });

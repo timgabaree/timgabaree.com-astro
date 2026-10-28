@@ -1,4 +1,5 @@
-import { copyFileSync, readdirSync, rmSync } from 'node:fs';
+import { copyFileSync, readdirSync, rmSync, readFileSync, writeFileSync } from 'node:fs';
+import { transform } from 'lightningcss';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 
@@ -18,5 +19,9 @@ function clean(directory) {
   }
 }
 clean(output);
+// Minify the published copy only; retain the readable stylesheet in public/.
+const stylesheet = join(output, 'css/style.css');
+writeFileSync(stylesheet, transform({ filename: 'style.css', code: readFileSync(stylesheet),
+  minify: true, targets: { safari: 15 << 16, chrome: 100 << 16, firefox: 100 << 16 } }).code);
 copyFileSync(new URL('../LICENSE', import.meta.url), join(output, 'LICENSE'));
 console.log('Cloudflare assets verified: no PHP source or Apache configuration.');

@@ -3,7 +3,7 @@ import { mailIssues } from './monitoring.ts';
 const retention = 7 * 24 * 60 * 60 * 1000;
 type Incident = { revision: string; environment: string; issue: string; detectedAt: string };
 
-// One account-private object. Dedupe and incident updates commit together.
+// Each account-private object commits dedupe and incident updates together.
 // Its fetch handler is reachable through bindings only, never directly from the Internet.
 export class DeliveryStatus {
   constructor(state: DurableObjectState) { this.state = state; }
