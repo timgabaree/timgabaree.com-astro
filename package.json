@@ -17,6 +17,7 @@
     "test:integration": "node scripts/test-cloudflare.mjs",
     "test:staging": "node scripts/test-staging.mjs",
     "test:production": "node scripts/test-production.mjs",
+    "test:live": "node scripts/test-live.mjs",
     "prepare:production": "npm run check && npm test && npm run build:production && npm run test:production && wrangler deploy --config wrangler.production.jsonc --dry-run --outdir worker-build/production",
     "deploy:staging": "npm run check && npm test && npm run build:staging && npm run test:integration && wrangler deploy",
     "astro": "astro"

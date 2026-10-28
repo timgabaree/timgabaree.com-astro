@@ -6,7 +6,10 @@
   "compatibility_date": "2026-10-23",
   "workers_dev": false,
   "preview_urls": false,
-  "routes": [],
+  "routes": [
+    { "pattern": "timgabaree.com", "custom_domain": true },
+    { "pattern": "www.timgabaree.com", "custom_domain": true }
+  ],
   "assets": {
     "directory": "./dist-production",
     "binding": "ASSETS",
@@ -16,7 +19,7 @@
   },
   "vars": {
     "ENVIRONMENT": "production",
-    "PRODUCTION_ENABLED": "false",
+    "PRODUCTION_ENABLED": "true",
     "CONTACT_MODE": "resend"
   },
   "durable_objects": {

@@ -12,11 +12,16 @@ const config = JSON.parse(await readFile(join(root, 'wrangler.production.jsonc')
 check(config.name, 'timgabaree-com-astro-production', 'separate Worker');
 check(config.account_id, '7459bd2037d71d23fd030e3542b9df61', 'intended account');
 check(config.vars.ENVIRONMENT, 'production', 'production runtime');
-check(config.vars.PRODUCTION_ENABLED, 'false', 'preparation must remain locked');
+check(config.vars.PRODUCTION_ENABLED, 'true', 'approved production launch enabled');
 check(config.vars.CONTACT_MODE, 'resend', 'no dry-run success in production');
 check(config.workers_dev, false, 'no public workers.dev address');
 check(config.preview_urls, false, 'no public preview URLs');
-check(config.routes.length, 0, 'no live-domain routes');
+// --unbound is only for the approved first deployment before hostname attachment.
+const expectedRoutes = process.argv.includes('--unbound') ? [] : [
+  { pattern: 'timgabaree.com', custom_domain: true },
+  { pattern: 'www.timgabaree.com', custom_domain: true },
+];
+assert.deepEqual(config.routes, expectedRoutes, 'only approved production hostnames'); checks++;
 check(config.assets.directory, './dist-production', 'separate production assets');
 check(config.assets.run_worker_first, true, 'all assets behind launch gate');
 check(config.durable_objects.bindings[0].script_name, undefined, 'contact security state remains isolated');
@@ -80,4 +85,4 @@ async function inspect(directory) {
   }
 }
 await inspect(output); checks++;
-console.log(`${checks} production build/configuration checks passed. Launch remains locked; no DNS changes or email sent.`);
+console.log(`${checks} production build/configuration checks passed (${expectedRoutes.length ? 'approved live configuration' : 'enabled but unbound'}). Tests changed no DNS and sent no email.`);

@@ -1,7 +1,9 @@
 # timgabaree.com Astro migration
 
-The Astro site is separate from the live PHP repository and GoDaddy deployment.
-Its new staging target is Cloudflare Workers. No production hostname is configured.
+The Astro site is live on Cloudflare Workers at https://timgabaree.com, with
+https://www.timgabaree.com redirecting to the apex. Its repository remains separate
+from the PHP repository. GoDaddy files are retained unchanged for archive/rollback;
+website traffic no longer uses that origin. Staging remains private.
 GoDaddy Web Hosting Deluxe is shared: `rgesol.com` is the primary domain, and
 `timgabaree.com` and the other sites are hosted beneath that account. Moving this
 site must not change or cancel the shared account or affect its other domains.
@@ -113,7 +115,56 @@ in Git as migration references. They are **not** part of the Cloudflare deployme
 local PHP comparison. Always rebuild with `npm run build` before Cloudflare use.
 Never serve a legacy build through a generic static server: it contains PHP source.
 
-## Production preparation (not a cutover)
+## Production deployment
+
+The explicitly approved cutover completed October 27, 2026 (America/Chicago;
+October 28 UTC). Production version `51d4ce62-df27-462a-a4d8-48c9a2fbc58a`
+serves both `timgabaree.com` and `www.timgabaree.com` as Cloudflare Custom Domains.
+`PRODUCTION_ENABLED=true`; workers.dev and preview URLs remain disabled. Staging
+retains authentication and its separate credentials/state. Email secrets were
+not changed during cutover. Source pushes do not automatically deploy.
+
+Launch verification:
+
+- 140 read-only live checks passed: pages, canonical URLs, HTTP/www and legacy
+  redirects, security headers, real 404s, robots/sitemap, byte-identical PDF/vCard
+  downloads, private staging, disabled production workers.dev and monitoring probes.
+- TLS 1.2 succeeded; TLS 1.1 was rejected. No TLS settings changed at cutover.
+- On the actual domain, Google tag scripts were absent before consent, appeared
+  after acceptance, and were absent after withdrawal/reload. This DOM-level check
+  is not an end-to-end analytics event/cookie audit. Calendly loaded; its keyboard
+  Close control restored focus to Schedule and removed the iframe. No booking made.
+- One approved live-form submission, **Cloudflare Live Cutover Test**, reached the
+  thank-you page. Resend recorded Delivered at 20:27 local time, email ID
+  `01a1801e-3f87-7b51-8c4b-649dc8ab7f80`, tagged production. Tim confirmed inbox
+  receipt at `tim@timgabaree.com` in this launch review.
+- All five UptimeRobot monitors reported Up after launch. Homepage certificate
+  data is populated (Google Trust Services, expires December 1, 2026). The prior
+  synthetic email-failure incident remains resolved; no new failure was injected.
+- All 144 remote GoDaddy file hashes still match the archived manifest. Shared
+  hosting, addon-domain mappings and other sites were untouched.
+- All 23 non-website DNS records present when this turn resumed were preserved
+  exactly, including mailbox/Resend records and a newly present Google verification
+  TXT. The old apex A and www CNAME were already absent at resumption; this turn
+  attached both Custom Domains without deleting any further DNS records.
+
+Evidence and before/resume/after DNS snapshots are outside Git at
+`/Volumes/StudioStack NVMe/Website Archives/timgabaree.com/2026-10-27-launch/`.
+The configuration, launch-check script and these notes are included in the
+approved launch commit. No credential values belong in these records.
+
+```bash
+npm run prepare:production
+npm run test:live
+```
+
+Preparation now validates the approved live configuration: exactly these two
+Custom Domains, production enabled, workers.dev/preview disabled. It builds and
+performs a deployment dry run, but does not deploy or alter DNS. The live suite
+only reads public endpoints; it does not send email. Historical preparation
+results below describe the earlier closed deployment, not the current live state.
+
+### Pre-cutover preparation record (historical)
 
 `wrangler.production.jsonc` targets the separate `timgabaree-com-astro-production`
 Worker in the intended Cloudflare account. Its contact-security Durable Objects
@@ -123,7 +174,7 @@ remain in `dist/`. Neither generated folder belongs in Git.
 
 The still-closed production Worker was refreshed on October 27, 2026 (America/Chicago;
 October 28 UTC) with the monitoring implementation included in this repository.
-Its current deployed version is `8349cf75-eed2-4ca0-8a92-8fbdb6f76c66`,
+Its then-deployed version was `8349cf75-eed2-4ca0-8a92-8fbdb6f76c66`,
 replacing `ef90c1c5-be10-4b09-979c-8b8a8c3d3cd8`. It includes persistent sanitized
 email-failure status and updated monitoring privacy disclosures, alongside the analytics opt-in and
 accessible Calendly dialog. Cloudflare reported **no deployed
@@ -151,16 +202,15 @@ npm run prepare:production
 
 This runs type checks, unit tests, a production build, local production
 configuration/content checks, and a Wrangler **dry run**. It does not deploy,
-send email, touch GoDaddy, or change DNS. The preparation checks deliberately
-require an empty route list, disabled `workers.dev` and preview URLs, and
-`PRODUCTION_ENABLED=false`. Revise those assertions as part of an approved launch,
-not to make a preparation check pass by exposing the site.
+send email, touch GoDaddy, or change DNS. Before launch, the checks required an
+empty route list and `PRODUCTION_ENABLED=false`. Those assertions were deliberately
+updated for the approved launch; current requirements are documented above.
 
 The production Worker returns 503/no-store/noindex until the explicit launch
 switch is `true` and all three email secrets exist with `CONTACT_MODE=resend`.
 Once enabled, only `timgabaree.com` and `www.timgabaree.com` are accepted. HTTP and
 www requests redirect to `https://timgabaree.com`, preserving paths, query strings
-and POST methods. Both hostnames still need Cloudflare routing at cutover; code
+and POST methods. Both hostnames now have Cloudflare Custom Domain routing; code
 alone does not bind DNS or issue certificates. Unknown hosts are rejected.
 
 Production has its own sending-only Resend key restricted to
@@ -337,7 +387,7 @@ prove inbox placement or that a person read the message. `/health` checks
 configuration presence, not Resend credentials or inbox delivery. Retain the
 approved real-domain contact test as a cutover gate.
 
-### Completed review and remaining launch gates
+### Completed review and post-launch follow-up
 
 Analytics now uses a local opt-in gate: no Google preconnect, iframe or tag load
 before acceptance. Production builds show equally prominent accept/decline
@@ -355,8 +405,9 @@ fallback. Escape works from the parent dialog; keys inside Calendly's cross-orig
 frame are controlled by Calendly. Tab/Shift+Tab provides an exit to our controls.
 No Calendly resource is requested until the visitor activates Schedule.
 
-The shared GTM container has not been changed. At cutover, verify analytics
-requests/cookies on the actual domain for accept, decline and withdrawal. The
+The shared GTM container has not been changed. Live script-load behavior was
+checked for accept, decline and withdrawal; a full network/cookie audit remains
+a separate follow-up. The
 last published container review found no `contact_form_submission` event tag;
 configure that separately if contact-conversion reporting is wanted. Do not
 publish shared-container changes casually: the live PHP site also uses it.
@@ -373,25 +424,12 @@ remains enabled. During this refresh, the live apex returned 200 using TLS 1.2
 and rejected TLS 1.1 with a server protocol-version alert. No TLS setting was
 changed during this refresh.
 
-Still required before/at an explicitly approved cutover:
-
-- Freeze PHP edits/deployments; check for changes since the archive and refresh
-  the archive if necessary. Refresh the exact apex/www DNS and routing snapshot.
-- Agree the cutover window; retain the verified failure-alert monitor and check
-  Cloudflare limits and Resend quotas. Monitoring must remain enabled at cutover.
-- Prepare launch configuration and tests intentionally: enable production only
-  after approval, retain disabled workers.dev/preview URLs, and attach only
-  apex/www as Custom Domains. The existing www CNAME must be replaced at cutover.
-  Do not enable the public hostnames while the production launch gate is false.
-- Verify certificates, HTTPS/HTTP and www redirects, legacy URLs, downloads,
-  security headers, missing-page responses, indexing, sitemap, canonical URLs,
-  and analytics accept/decline/withdrawal on the actual domain after switching.
-  Staging must remain private, unindexed, and unable to send Google analytics.
-- With separate approval, submit one real-domain contact test and confirm inbox
-  receipt. Failed sends must not claim success. The private email test is not a
-  substitute for this final public-domain check.
-- Record deployed version and final website routing; arrange agreed follow-up
-  checks. Privacy disclosures describe implementation, not a legal compliance audit.
+The approved cutover and real-domain email gate are complete, as recorded above.
+Keep monitoring enabled and review Cloudflare/Resend usage as traffic develops.
+Phone testing remains explicitly deferred; optional contact-conversion reporting
+and a fuller analytics network/cookie audit are separate follow-ups. No new
+scheduled automation was created by the cutover. Privacy disclosures describe
+implementation, not a legal compliance audit.
 
 ### GoDaddy archive and rollback boundary
 
@@ -412,15 +450,13 @@ before any eventual removal of the GoDaddy source, which is not authorized here.
 The original archive report is historical: its TLS 1.0 note and older test counts
 predate the later TLS hardening and this production refresh.
 
-Saved website rollback values (refresh immediately before cutover): apex A
+Website rollback values confirmed in the pre-cutover snapshot: apex A
 `72.167.204.130`, www CNAME `timgabaree.com`, both proxied with TTL Auto. Do not
 blindly import the full DNS export or overwrite unrelated changes.
 
-Capture exact current apex/www DNS records, proxy settings and redirect/Worker
-rules; record how to restore the GoDaddy origin. After approval, attach only the
-website hostnames to the new Worker and verify TLS, redirects, real 404s, contact
-delivery and indexing. Leave MX, mailbox authentication records, Resend sending
-records and every other hosted domain unchanged.
+The launch evidence folder records the DNS snapshots and attached Custom Domains.
+Only the website hostnames moved. MX, mailbox authentication records, Resend
+sending records and every other hosted domain were left unchanged.
 
 If critical checks fail, remove/disable the new website bindings and restore the
 saved website DNS/routing settings, then verify the PHP site. Keep the deployed
