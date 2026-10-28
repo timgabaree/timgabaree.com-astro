@@ -120,10 +120,26 @@ Worker in the intended Cloudflare account. Its Durable Objects belong to that
 Worker, not staging. Production builds go to `dist-production/`; staging builds
 remain in `dist/`. Neither generated folder belongs in Git.
 
-The inactive production Worker was provisioned on October 27, 2026, version
-`f8bc70cb-3dcc-4339-86c5-8a8143d6f777`. Cloudflare reported no deployed targets.
-No live-domain bindings or production email secrets were added. This is not a
-live launch; the GoDaddy website and the existing staging deployment remain in place.
+The still-closed production Worker was refreshed on October 27, 2026 (America/Chicago;
+October 28 UTC) from source commit `61b293763f2be27fe8ed6562556f8b92b504e397`.
+Its current deployed version is `9e9c8588-a358-407a-8ae2-58e921f0a0db`, replacing
+`4019fbda-492d-4105-80cf-97ed2231832d`. It includes the analytics opt-in, privacy
+disclosures, and accessible Calendly dialog. Cloudflare reported **no deployed
+targets**. Remote version metadata confirms `PRODUCTION_ENABLED=false`, no preview,
+and all assets passing through the Worker. `workers.dev` and preview URLs remain
+disabled, and the configuration's route list remains empty.
+
+Production secrets `RESEND_API_KEY`, `CONTACT_FROM`, and `CONTACT_TO` remain
+installed; no secret values are recorded here. Production keeps its original,
+separate Durable Object namespace. This was not a live launch: no DNS, domain
+bindings, GoDaddy files, or shared-hosting settings were changed. Staging remains
+on version `08cef3a3-99e6-46ae-9b82-888860bf318d` and was not redeployed.
+
+Verification for this refresh: Astro/TypeScript had zero errors, warnings or hints;
+30 unit tests, 177 production build/configuration checks, 80 local Worker runtime
+checks, and 73 online staging checks passed. The production build and deployment
+dry run also passed before upload. No email was submitted. These checks establish
+build/configuration safety; actual-domain behavior still requires cutover testing.
 
 ```bash
 npm run prepare:production
@@ -143,18 +159,21 @@ www requests redirect to `https://timgabaree.com`, preserving paths, query strin
 and POST methods. Both hostnames still need Cloudflare routing at cutover; code
 alone does not bind DNS or issue certificates. Unknown hosts are rejected.
 
-Production needs its own sending-only Resend key restricted to
+Production has its own sending-only Resend key restricted to
 `forms.timgabaree.com`, plus `CONTACT_FROM` and `CONTACT_TO` secrets on the production
 Worker. Do not copy staging credentials or put keys in this configuration.
 Retain enforced TLS and disabled email tracking. No production secrets are
 required for the local checks, which mock the mail provider and never send email.
+The earlier approved private production email test was delivered and confirmed
+by the recipient on October 27. That tested the adapter and credentials, not the
+final public-domain form path. No repeat email was sent during this refresh.
 
 Logs/traces remain disabled to avoid collecting request data inadvertently.
 Before launch, choose privacy-conscious uptime/error monitoring, check account
 usage limits and email quotas, and decide who receives failure notifications.
 GitHub holds the source; pushes do not automatically deploy either environment.
 
-### Launch gates still requiring verification
+### Completed review and remaining launch gates
 
 Analytics now uses a local opt-in gate: no Google preconnect, iframe or tag load
 before acceptance. Production builds show equally prominent accept/decline
@@ -172,35 +191,66 @@ fallback. Escape works from the parent dialog; keys inside Calendly's cross-orig
 frame are controlled by Calendly. Tab/Shift+Tab provides an exit to our controls.
 No Calendly resource is requested until the visitor activates Schedule.
 
-The shared GTM container has not been changed. Before launch, verify analytics
+The shared GTM container has not been changed. At cutover, verify analytics
 requests/cookies on the actual domain for accept, decline and withdrawal. The
 last published container review found no `contact_form_submission` event tag;
 configure that separately if contact-conversion reporting is wanted. Do not
 publish shared-container changes casually: the live PHP site also uses it.
 
-- Production secrets provisioned; approved production email reaches the mailbox
-  without the `[STAGING]` subject prefix. Confirm failed sends do not claim success.
-- Phone/desktop and keyboard review, Calendly, documents, external links and
-  legacy URLs verified. Local checks validate internal links and built assets.
-- Production indexing, sitemap, canonical links and analytics verified on the
-  actual domain after cutover. Staging must remain private and unindexed.
-- GTM tags/consent choices and the revised privacy disclosure reviewed before
-  launch. The text describes implementation; it is not a legal compliance audit.
-- Exact Cloudflare DNS/routing snapshot, certificate plan and reversal steps
-  captured. No production-domain route is currently defined in this repository.
-- Server archive verified as described below. A Git checkout is not a full backup
-  of the deployed website.
+Completed: the user confirmed the staging privacy choices and Calendly work in
+their desktop browser. Keyboard navigation, close controls and focus restoration
+were verified locally. Download/external-link review was completed earlier.
+The user explicitly deferred further phone testing; do not describe it as passed.
+Chrome's mobile preview had stalled on the embedded Calendly request, while the
+in-app browser loaded it. The full-page Calendly link remains available.
+
+Minimum TLS was raised to 1.2 in the earlier approved security change; TLS 1.3
+remains enabled. During this refresh, the live apex returned 200 using TLS 1.2
+and rejected TLS 1.1 with a server protocol-version alert. No TLS setting was
+changed during this refresh.
+
+Still required before/at an explicitly approved cutover:
+
+- Freeze PHP edits/deployments; check for changes since the archive and refresh
+  the archive if necessary. Refresh the exact apex/www DNS and routing snapshot.
+- Agree the cutover window, failure-alert recipient and monitoring approach;
+  check Cloudflare limits and Resend quotas. No recurring monitoring is enabled.
+- Prepare launch configuration and tests intentionally: enable production only
+  after approval, retain disabled workers.dev/preview URLs, and attach only
+  apex/www as Custom Domains. The existing www CNAME must be replaced at cutover.
+  Do not enable the public hostnames while the production launch gate is false.
+- Verify certificates, HTTPS/HTTP and www redirects, legacy URLs, downloads,
+  security headers, missing-page responses, indexing, sitemap, canonical URLs,
+  and analytics accept/decline/withdrawal on the actual domain after switching.
+  Staging must remain private, unindexed, and unable to send Google analytics.
+- With separate approval, submit one real-domain contact test and confirm inbox
+  receipt. Failed sends must not claim success. The private email test is not a
+  substitute for this final public-domain check.
+- Record deployed version and final website routing; arrange agreed follow-up
+  checks. Privacy disclosures describe implementation, not a legal compliance audit.
 
 ### GoDaddy archive and rollback boundary
 
-Before cutover, resolve the actual `timgabaree.com` document root in the shared
-GoDaddy account. Do not assume the local folder matches deployed files. Archive
-that site's deployed files (including hidden configuration, public downloads,
-and any required non-Git files), inventory any site-specific database or scheduled
-job dependencies, and export only applicable dependencies if present. Exclude
-sibling site roots. Store sensitive configuration outside Git in a protected
-archive, record a checksum/file inventory, and verify restoration separately.
-No server archive has been created by these preparation commands.
+The deployed GoDaddy addon-domain root was verified and archived on October 27,
+not inferred from the local Git checkout. The archive is stored outside Git and
+Dropbox at `/Volumes/StudioStack NVMe/Website Archives/timgabaree.com/2026-10-27-pre-cutover/`.
+The tarball `godaddy-timgabaree.com.tar.gz` contains 144 regular files (166 total
+entries), including hidden configuration and downloads; sibling sites are excluded.
+Its SHA-256 is `b918d619387ad48ef8ff14931da0ebeea1827a065f891cf2cdc9be3342753886`,
+rechecked successfully during this production refresh.
+
+An independent extraction matched the recorded remote before/after file hashes.
+No live restoration or complete Apache runtime restoration was performed. No
+site-specific database dependency or active hosting-user cron entry was identified.
+The archive excludes account-wide services, mailboxes and TLS private keys; it is
+access-restricted but not independently encrypted. Make a second protected copy
+before any eventual removal of the GoDaddy source, which is not authorized here.
+The original archive report is historical: its TLS 1.0 note and older test counts
+predate the later TLS hardening and this production refresh.
+
+Saved website rollback values (refresh immediately before cutover): apex A
+`72.167.204.130`, www CNAME `timgabaree.com`, both proxied with TTL Auto. Do not
+blindly import the full DNS export or overwrite unrelated changes.
 
 Capture exact current apex/www DNS records, proxy settings and redirect/Worker
 rules; record how to restore the GoDaddy origin. After approval, attach only the
@@ -214,6 +264,8 @@ GoDaddy files and domain mapping intact for rollback and archive. Do not delete
 the addon domain, its folder, the `rgesol.com` primary site, or the shared Web
 Hosting Deluxe account. Changing website DNS later does not require removing
 those files or cancelling hosting.
+Restore website traffic to GoDaddy before re-locking Astro: disabling Astro alone
+while its domain bindings remain active would return 503 instead of restoring PHP.
 
 ## Project structure
 
