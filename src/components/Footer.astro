@@ -11,8 +11,8 @@ const currentYear = new Date().getFullYear();
   <p>
     {page !== 'home' && <><a href="/">Home</a> &nbsp;|&nbsp; </>}
     <a href="/privacy">Privacy Policy</a> &nbsp;|&nbsp;
-    <a href="/sitemap.xml">Sitemap</a>
-    <span data-analytics-settings hidden> &nbsp;|&nbsp; <button type="button" class="privacy-choices-link" data-analytics-open>Privacy choices</button></span>
+    <a href="/sitemap">Sitemap</a>
+    <span data-analytics-settings hidden> &nbsp;|&nbsp; <button type="button" class="privacy-choices-link" data-analytics-open aria-controls="analytics-choices" aria-expanded="false">Privacy choices</button></span>
   </p>
   <p class="footer-disclaimer">
     Copyright © 2023–{currentYear} Tim Gabaree. All Rights Reserved.

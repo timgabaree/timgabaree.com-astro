@@ -1,0 +1,58 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import sitemapXml from '../../public/sitemap.xml?raw';
+
+// Render at build time from the search-engine sitemap: no browser XSLT or JS.
+const labels: Record<string, string> = {
+  '/': 'Home',
+  '/technology-leadership': 'Technology Leadership',
+  '/value-creation': 'Value Creation',
+  '/governance': 'Governance',
+  '/about': 'About',
+  '/contact': 'Contact',
+  '/privacy': 'Privacy Policy',
+  '/sitemap': 'Sitemap',
+};
+const pages = Array.from(sitemapXml.matchAll(/<url>([\s\S]*?)<\/url>/g), ([, entry]) => {
+  const location = entry.match(/<loc>([^<]+)<\/loc>/)?.[1];
+  if (!location) throw new Error('Sitemap entry is missing its URL');
+  const url = new URL(location);
+  if (url.origin !== 'https://timgabaree.com' || !labels[url.pathname]) {
+    throw new Error(`Add a sitemap label for ${location}`);
+  }
+  return { href: url.pathname, label: labels[url.pathname] };
+});
+---
+
+<BaseLayout page="sitemap" title="Sitemap | Tim Gabaree"
+  description="Find the public pages on Tim Gabaree’s website."
+  canonicalPath="/sitemap" robots="index, follow">
+  <main id="main-content" class="sitemap-page">
+    <section class="sitemap-card" aria-labelledby="sitemap-title">
+      <p class="eyebrow">EXPLORE THE WEBSITE</p>
+      <h1 id="sitemap-title">Sitemap</h1>
+      <p>Find information about my work, leadership experience, and ways to connect.</p>
+      <nav aria-label="All website pages">
+        <ul>
+          {pages.map(({ href, label }) => <li><a href={href}>{label}<span aria-hidden="true"> →</span></a></li>)}
+        </ul>
+      </nav>
+      <p class="xml-link">For search engines: <a href="/sitemap.xml">XML sitemap</a></p>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .sitemap-page { padding: 48px 20px; min-height: 60vh; }
+  .sitemap-card { max-width: 880px; margin: 0 auto; padding: 36px; border-radius: 16px; background: #fff; color: #17243a; box-shadow: 0 8px 32px rgb(0 0 0 / 12%); }
+  .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .14em; color: #415a77; }
+  h1 { margin: 12px 0 16px; font-size: clamp(2rem, 6vw, 3rem); }
+  p { line-height: 1.6; }
+  ul { list-style: none; padding: 0; margin: 28px 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  li a { display: flex; justify-content: space-between; gap: 12px; min-height: 48px; align-items: center; padding: 16px; background: #f0f4f8; border-radius: 8px; text-decoration: none; }
+  a { color: #174d83; }
+  a:hover { text-decoration: underline; }
+  a:focus-visible { outline: 3px solid #174d83; outline-offset: 4px; }
+  .xml-link { padding-top: 20px; border-top: 1px solid #d9e1ea; font-size: .9rem; }
+  @media (max-width: 600px) { .sitemap-page { padding: 24px 12px; } .sitemap-card { padding: 24px 20px; } ul { grid-template-columns: 1fr; } }
+</style>

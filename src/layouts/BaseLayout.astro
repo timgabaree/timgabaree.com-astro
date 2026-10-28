@@ -110,8 +110,8 @@ const imageUrl = new URL(image, siteUrl).toString();
   <body class={meta?.bodyClass || undefined}>
     <a class="skip-link" href="#main-content">Skip to main content</a>
     <Navigation page={page} />
-    <AnalyticsChoices enableAnalytics={enableAnalytics} />
     <slot />
+    <AnalyticsChoices enableAnalytics={enableAnalytics} />
     <Footer page={page} />
 
     <script is:inline src="/js/main.js" defer></script>

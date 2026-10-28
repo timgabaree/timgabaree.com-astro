@@ -27,7 +27,7 @@ try {
     await delay(250);
   }
   assert.ok(ready, `Local Worker did not start: ${output}`);
-  for (const page of ['/', '/about', '/contact', '/governance', '/privacy', '/technology-leadership', '/thank-you', '/value-creation']) {
+  for (const page of ['/', '/about', '/contact', '/governance', '/privacy', '/sitemap', '/technology-leadership', '/thank-you', '/value-creation']) {
     const response = await request(page);
     check(response.status, 200, page);
     check(response.headers.get('X-Robots-Tag'), 'noindex, nofollow, noarchive', `${page} noindex`);
@@ -38,6 +38,9 @@ try {
     assert.ok(!html.includes('href="https://www.googletagmanager.com"'), 'No Google preconnect');
     checks += 4;
   }
+  const sitemap = await (await request('/sitemap.xml')).text();
+  assert.doesNotMatch(sitemap, /xml-stylesheet|\.xsl/i); checks++;
+  check((await request('/sitemap.xsl')).status, 404, 'obsolete XSL removed');
   check((await request('/does-not-exist')).status, 404, 'real missing-page status');
   for (const path of ['/includes/config.php', '/.git/config', '/.env', '/css/.htaccess', '/server-php/contact-submit.php', '/worker/index.ts', '/random.php']) {
     check((await request(path)).status, 404, `private ${path}`);

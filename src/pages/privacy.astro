@@ -266,10 +266,13 @@ const structuredData = {"@context":"https://schema.org","@graph":[{"@type":"WebS
 
       <p>
         Optional Google Analytics, delivered through Google Tag Manager, is off
-        until you select “Accept analytics.” It measures visits and link clicks
+        until you select “Allow cookies” in the small cookie notice or in
+        “Privacy choices” in the footer. It measures visits and link clicks
         to help improve the website and may use cookies and device information.
         Declining does not prevent you from using the website, contacting me,
-        or scheduling a meeting. Analytics are disabled on staging.
+        or scheduling a meeting. Dismissing the notice does not grant consent;
+        it hides the notice for the current browser tab session. Google Analytics
+        is disabled on staging.
       </p>
 
       <p>
@@ -277,14 +280,25 @@ const structuredData = {"@context":"https://schema.org","@graph":[{"@type":"WebS
         using local storage under “tg-analytics-choice-v1.” This preference is
         used only to remember your decision. Use “Privacy choices” in the
         production website’s footer to change it at any time. If browser storage
-        is unavailable, analytics stay off. Without JavaScript, analytics do not load.
+        is unavailable, Google Analytics stays off. Without JavaScript, Google
+        Analytics does not load. A separate session-storage preference,
+        “tg-analytics-dismissed-v1,” remembers when you dismiss the notice.
       </p>
 
       <p>
-        Withdrawing consent stops future analytics collection and removes known
+        Withdrawing consent stops future Google Analytics collection and removes known
         first-party Google analytics cookies. The page reloads if analytics were
         already running. Withdrawal does not erase information previously sent
         to Google. See <a href="https://business.safety.google/privacy/" target="_blank" rel="noopener noreferrer">how Google uses information from sites that use its services (opens in a new tab)</a>.
+      </p>
+
+      <p>
+        Cloudflare Web Analytics separately measures basic traffic and page
+        performance without analytics cookies or local-storage identifiers.
+        It does not track individual visitors across visits and is independent
+        of the Google Analytics cookie choice. Cloudflare also processes network
+        information for hosting and security, as described above.
+        See <a href="https://www.cloudflare.com/web-analytics/">Cloudflare Web Analytics</a>.
       </p>
 
       <p>

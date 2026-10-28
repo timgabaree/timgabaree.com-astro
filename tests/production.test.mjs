@@ -14,6 +14,18 @@ function environment(overrides = {}) {
   };
 }
 
+test('CSP permits both analytics providers without allowing arbitrary scripts', async () => {
+  const response = await worker.fetch(new Request('https://timgabaree.com/'), environment());
+  const csp = response.headers.get('Content-Security-Policy');
+  const scripts = csp.split(';').find(part => part.trim().startsWith('script-src '));
+  const connections = csp.split(';').find(part => part.trim().startsWith('connect-src '));
+  assert.match(scripts, /https:\/\/static\.cloudflareinsights\.com/);
+  assert.match(scripts, /https:\/\/www\.googletagmanager\.com/);
+  assert.doesNotMatch(scripts, /unsafe-inline|unsafe-eval|\*/);
+  assert.match(connections, /https:\/\/cloudflareinsights\.com/);
+  assert.match(connections, /https:\/\/www\.google-analytics\.com/);
+});
+
 test('production preparation is locked, including pages, assets and contact endpoints', async () => {
   for (const override of [{ PRODUCTION_ENABLED: undefined }, { PRODUCTION_ENABLED: 'false' },
     { PRODUCTION_ENABLED: 'TRUE' }, { RESEND_API_KEY: undefined }, { CONTACT_FROM: '' },

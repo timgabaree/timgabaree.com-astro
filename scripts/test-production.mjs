@@ -32,7 +32,7 @@ for (const key of ['RESEND_API_KEY', 'CONTACT_FROM', 'CONTACT_TO', 'STAGING_PASS
   check(Object.hasOwn(config.vars, key), false, `${key} not embedded`);
 }
 
-const publicPages = ['index', 'about', 'contact', 'governance', 'privacy', 'technology-leadership', 'value-creation'];
+const publicPages = ['index', 'about', 'contact', 'governance', 'privacy', 'sitemap', 'technology-leadership', 'value-creation'];
 const allPages = [...publicPages, 'thank-you', '404'];
 const internal = new Set();
 for (const page of allPages) {
@@ -46,6 +46,10 @@ for (const page of allPages) {
   check(html.includes('data-analytics-panel'), true, `${page} analytics choice panel`);
   check(html.includes('data-analytics-enabled="true"'), true, `${page} production analytics permission gate`);
   check(html.includes('data-analytics-open'), true, `${page} persistent privacy control`);
+  assert.match(html, /<section[^>]*data-analytics-panel[^>]* hidden(?:[ >])/, `${page} JS controls saved cookie choice`); checks++;
+  check(html.includes('Allow cookies'), true, `${page} compact cookie notice`);
+  check(html.includes('aria-label="Dismiss cookie notice"'), true, `${page} dismiss without consent`);
+  check(html.includes('href="/sitemap"'), true, `${page} human-readable sitemap footer`);
   check(html.includes('Staging site notice'), false, `${page} no staging notice`);
   if (page !== '404') {
     const expected = `https://timgabaree.com/${page === 'index' ? '' : page}`;
@@ -72,6 +76,13 @@ for (const page of publicPages) {
   assert.ok(sitemap.includes(`<loc>https://timgabaree.com/${page === 'index' ? '' : page}</loc>`), `${page} in sitemap`); checks++;
 }
 assert.doesNotMatch(sitemap, /<loc>[^<]*(?:thank-you|404|workers\.dev)/); checks++;
+assert.doesNotMatch(sitemap, /xml-stylesheet|\.xsl/i); checks++;
+check(await stat(join(output, 'sitemap.xsl')).then(() => true).catch(() => false), false, 'obsolete XSL is not shipped');
+const sitemapHtml = await readFile(join(output, 'sitemap.html'), 'utf8');
+for (const page of publicPages) {
+  check(sitemapHtml.includes(`href="/${page === 'index' ? '' : page}"`), true, `${page} linked in HTML sitemap`);
+}
+check(sitemapHtml.includes('href="/sitemap.xml"'), true, 'XML sitemap still available');
 const privacy = await readFile(join(output, 'privacy.html'), 'utf8');
 assert.doesNotMatch(privacy, /GoDaddy Hosting|Staging site notice/); checks++;
 assert.match(privacy, /Resend/); checks++;

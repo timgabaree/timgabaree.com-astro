@@ -3,10 +3,10 @@ import type { Env } from './contact.ts';
 import { persistMailIssue } from './monitoring.ts';
 export { ContactState } from './state.ts';
 
-const pages = 'about|contact|governance|privacy|technology-leadership|thank-you|value-creation';
+const pages = 'about|contact|governance|privacy|sitemap|technology-leadership|thank-you|value-creation';
 const legacyPage = new RegExp(`^/(${pages})(?:/index)?\\.(?:php|html)$`, 'i');
 const trailingPage = new RegExp(`^/(${pages})/$`, 'i');
-const csp = "default-src 'self'; object-src 'none'; script-src 'self' https://www.googletagmanager.com https://assets.calendly.com; style-src 'self' 'unsafe-inline' https://assets.calendly.com; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://www.googletagmanager.com https://*.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://calendly.com https://*.calendly.com; frame-src https://www.googletagmanager.com https://calendly.com https://*.calendly.com; base-uri 'self'; form-action 'self'; frame-ancestors 'self'";
+const csp = "default-src 'self'; object-src 'none'; script-src 'self' https://www.googletagmanager.com https://assets.calendly.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://assets.calendly.com; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://www.googletagmanager.com https://*.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://calendly.com https://*.calendly.com https://cloudflareinsights.com; frame-src https://www.googletagmanager.com https://calendly.com https://*.calendly.com; base-uri 'self'; form-action 'self'; frame-ancestors 'self'";
 
 async function equalSecret(a: string, b: string): Promise<boolean> {
   const encode = (value: string) => crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));

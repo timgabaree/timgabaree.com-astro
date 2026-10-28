@@ -3407,22 +3407,45 @@ button.contact-action {
   }
 }
 
-/* Optional analytics: equal choices, in flow so content is never covered. */
+/* A compact, non-modal cookie notice. Never blocks scrolling or takes focus. */
 .analytics-choices {
   box-sizing: border-box;
-  max-width: 980px;
-  margin: 20px auto;
-  padding: 20px;
-  border: 2px solid #637089;
-  border-radius: 12px;
-  background: #f5f7fa;
+  position: fixed;
+  z-index: 500;
+  right: 16px;
+  bottom: 16px;
+  width: min(420px, calc(100% - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid #b7c2d1;
+  border-radius: 10px;
+  box-shadow: 0 3px 18px rgb(0 0 0 / 12%);
+  background: #fff;
   color: #17243a;
+  font-size: 0.875rem;
 }
 .analytics-choices[hidden], [data-analytics-settings][hidden] { display: none; }
-.analytics-choices h2 { margin: 0 0 12px; font-size: 1.25rem; }
-.analytics-choices p { margin: 10px 0; line-height: 1.5; }
+.analytics-choices p { margin: 0 0 10px; line-height: 1.5; }
+.analytics-choices .analytics-copy { padding-right: 32px; }
+.analytics-choices [data-analytics-status]:empty { display: none; }
+.analytics-close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  color: #17243a;
+  font: inherit;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
 .analytics-choices a, .scheduling-dialog a { color: #174d83; text-decoration: underline; }
-.privacy-choice-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.privacy-choice-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.privacy-choice-actions button { flex: 1; }
 .privacy-choice-actions button, .scheduling-dialog button {
   min-height: 44px;
   padding: 10px 16px;
@@ -3463,7 +3486,6 @@ button.contact-action {
 .scheduling-frame iframe { display: block; width: 100%; height: 65dvh; min-height: 360px; border: 0; }
 .scheduling-dialog > button { margin-top: 12px; }
 @media (max-width: 600px) {
-  .analytics-choices { margin: 12px; padding: 16px; }
-  .privacy-choice-actions button { flex: 1 1 100%; }
+  .analytics-choices { right: 12px; bottom: 12px; width: calc(100% - 24px); }
   .scheduling-dialog { padding: 12px; }
 }

@@ -10,6 +10,38 @@ site must not change or cancel the shared account or affect its other domains.
 
 ## Develop and test
 
+### Compact cookie notice and XSLT-free sitemap (2026-10-27)
+
+Both Google and Cloudflare analytics are retained. New visitors see a small,
+non-modal bottom-corner cookie notice with equally styled Allow cookies and
+Decline buttons. It never takes focus or blocks scrolling. Google Analytics
+stays off until acceptance; advertising consent stays denied. The footer
+“Privacy choices” control reopens settings. Close or Escape dismisses them
+without granting consent; a session-storage flag suppresses repeated notices
+in the same tab session. Existing unexpired accept/decline choices are respected.
+Unavailable storage fails closed for Google Analytics.
+
+The CSP now permits only Cloudflare's specific analytics script and collection
+origins in addition to the existing allowed services. Cloudflare supplies the
+beacon at the edge; there is no duplicate hard-coded beacon. Its cookie-free Web
+Analytics is independent of the Google cookie choice. No person-identification,
+IP-to-person lookup, or browser fingerprinting feature has been added.
+
+The footer now links to a normal, responsive HTML sitemap at `/sitemap`, rendered
+at build time from the same XML URL list. `/sitemap.xml` remains available to
+search engines with its image entries, and robots.txt still points to it. The
+XSL processing instruction and obsolete `sitemap.xsl` have been removed from the
+Astro project (recoverable in Git history); the PHP sibling is unchanged.
+
+Pre-publication checks passed: Astro/TypeScript (zero diagnostics), 50 unit tests,
+243 production build/configuration checks, 88 isolated local runtime checks,
+XML parsing, and desktop/390px-wide browser layout review. Dismissal survives
+navigation/reload in the same tab without enabling Google. No actual phone test
+is claimed. Google Tag Manager, DNS, secrets and GoDaddy resources are unchanged.
+Live publication verification is recorded below after deployment.
+
+### Local commands
+
 Use the Node version in `.nvmrc` (`nvm use`), then:
 
 ```bash
@@ -389,9 +421,10 @@ approved real-domain contact test as a cutover gate.
 
 ### Completed review and post-launch follow-up
 
-Analytics now uses a local opt-in gate: no Google preconnect, iframe or tag load
-before acceptance. Production builds show equally prominent accept/decline
-controls and a footer “Privacy choices” button. Preferences expire after 180 days;
+Analytics uses a local opt-in gate: no Google preconnect, iframe or tag load
+before acceptance. The compact cookie notice offers equally prominent allow/decline
+controls, plus dismissal without consent; footer “Privacy choices” reopens it.
+Preferences expire after 180 days;
 restricted storage fails closed. Withdrawal removes known first-party Google
 measurement cookies and reloads to unload tags. Advertising consent stays denied.
 The hostname guard also prevents analytics on local and staging previews, even

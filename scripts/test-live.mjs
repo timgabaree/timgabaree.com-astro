@@ -9,12 +9,18 @@ const check = (actual, expected, label) => { assert.equal(actual, expected, labe
 const request = (url, method = 'GET') => fetch(url, {
   method, redirect: 'manual', signal: AbortSignal.timeout(30_000),
 });
-const pages = ['', 'about', 'contact', 'governance', 'privacy', 'technology-leadership', 'value-creation'];
+const pages = ['', 'about', 'contact', 'governance', 'privacy', 'sitemap', 'technology-leadership', 'value-creation'];
 for (const page of [...pages, 'thank-you']) {
   const response = await request(`${base}/${page}`);
   check(response.status, 200, `page ${page || 'home'}`);
   const html = await response.text();
   check(html.includes('data-analytics-enabled="true"'), true, 'production Astro assets');
+  assert.match(html, /<section[^>]*data-analytics-panel[^>]* hidden(?:[ >])/, 'JS controls saved cookie choice'); checks++;
+  check(html.includes('Allow cookies'), true, 'compact cookie notice');
+  const csp = response.headers.get('content-security-policy') ?? '';
+  assert.match(csp, /script-src[^;]*https:\/\/static\.cloudflareinsights\.com/); checks++;
+  assert.match(csp, /connect-src[^;]*https:\/\/cloudflareinsights\.com/); checks++;
+  check(html.includes('href="/sitemap"'), true, 'HTML sitemap linked');
   check(html.includes('Staging site notice'), false, 'no staging notice');
   check(html.includes('googletagmanager.com/ns.html'), false, 'no consent-bypassing iframe');
   check(html.match(/<link rel="canonical" href="([^"]+)"/)?.[1], `${base}/${page}`, 'canonical');
@@ -50,6 +56,10 @@ assert.match(robots, /User-agent: \*\s+Allow: \//); checks++;
 const sitemap = await (await request(`${base}/sitemap.xml`)).text();
 for (const page of pages) { assert.ok(sitemap.includes(`<loc>${base}/${page}</loc>`)); checks++; }
 assert.doesNotMatch(sitemap, /workers\.dev|thank-you|404/); checks++;
+assert.doesNotMatch(sitemap, /xml-stylesheet|\.xsl/i); checks++;
+const sitemapPage = await (await request(`${base}/sitemap`)).text();
+for (const page of pages) { check(sitemapPage.includes(`href="/${page}"`), true, 'HTML sitemap page link'); }
+check((await request(`${base}/sitemap.xsl`, 'HEAD')).status, 404, 'obsolete XSL removed');
 for (const file of ['timgabaree.vcf', 'armypubs/cmhPub_70-128.pdf', 'armypubs/AH104(W).pdf', 'armypubs/AH106(W).pdf']) {
   const response = await request(`${base}/${file}`);
   check(response.status, 200, `download ${file}`);

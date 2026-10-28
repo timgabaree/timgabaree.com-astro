@@ -18,10 +18,15 @@ function element() {
     click(event = {}) { this.handlers.click?.(event); },
   };
 }
-function analyticsHarness({ stored, hostname = 'timgabaree.com', enabled = 'true', blocked = false, cookies = '' } = {}) {
-  const nodes = Object.fromEntries(['panel', 'status', 'open', 'reject', 'accept', 'settings'].map(name => [`[data-analytics-${name}]`, element()]));
+function analyticsHarness({ stored, dismissed = false, hostname = 'timgabaree.com', enabled = 'true', blocked = false, cookies = '' } = {}) {
+  const nodes = Object.fromEntries(['panel', 'status', 'open', 'reject', 'accept', 'close', 'settings'].map(name => [`[data-analytics-${name}]`, element()]));
   nodes['[data-analytics-panel]'].dataset.analyticsEnabled = enabled;
   const storage = new Map(stored === undefined ? [] : [[key, stored]]);
+  const session = new Map(dismissed ? [['tg-analytics-dismissed-v1', '1']] : []);
+  const sessionStorage = {
+    getItem: k => session.get(k) ?? null,
+    setItem(k, v) { if (blocked) throw Error('restricted'); session.set(k, v); },
+  };
   const scripts = [], deletedCookies = [];
   const main = element();
   let reloads = 0;
@@ -37,21 +42,28 @@ function analyticsHarness({ stored, hostname = 'timgabaree.com', enabled = 'true
   };
   const window = { location: { hostname, reload() { reloads++; } }, handlers: {},
     addEventListener(name, fn) { this.handlers[name] = fn; } };
-  vm.runInNewContext(analytics, { window, document, localStorage });
-  return { nodes, storage, scripts, deletedCookies, window, main, get reloads() { return reloads; },
+  vm.runInNewContext(analytics, { window, document, localStorage, sessionStorage });
+  return { nodes, storage, session, scripts, deletedCookies, window, main, get reloads() { return reloads; },
     click: name => nodes[`[data-analytics-${name}]`].click() };
 }
 
-test('analytics starts off; decline stores a choice without loading Google or queuing events', () => {
+test('first visit shows a non-modal notice without taking focus or loading Google; decline persists', () => {
   const h = analyticsHarness();
   assert.equal(h.nodes['[data-analytics-panel]'].hidden, false);
+  assert.equal(h.nodes['[data-analytics-settings]'].hidden, false);
+  assert.equal(h.main.focused, undefined);
+  assert.equal(h.nodes['[data-analytics-reject]'].focused, undefined);
   h.window.siteAnalytics.track({ event: 'pre_consent' });
   assert.equal(h.window.dataLayer, undefined);
+  h.click('open');
+  assert.equal(h.nodes['[data-analytics-panel]'].hidden, false);
+  assert.equal(h.nodes['[data-analytics-open]']['aria-expanded'], 'true');
   h.click('reject');
   assert.equal(h.scripts.length, 0);
   assert.equal(JSON.parse(h.storage.get(key)).choice, 'declined');
   assert.equal(h.nodes['[data-analytics-panel]'].hidden, true);
-  assert.equal(h.main.focused, true);
+  assert.equal(h.nodes['[data-analytics-open]'].focused, true);
+  assert.equal(h.nodes['[data-analytics-open]']['aria-expanded'], 'false');
 });
 
 test('explicit consent loads once with analytics granted and advertising denied; no historical events', () => {
@@ -71,6 +83,9 @@ test('explicit consent loads once with analytics granted and advertising denied;
 test('saved accept and decline persist; expired, malformed and future-dated choices fail closed', () => {
   assert.equal(analyticsHarness({ stored: saved('accepted') }).scripts.length, 1);
   assert.equal(analyticsHarness({ stored: saved('declined') }).scripts.length, 0);
+  for (const choice of ['accepted', 'declined']) {
+    assert.equal(analyticsHarness({ stored: saved(choice) }).nodes['[data-analytics-panel]'].hidden, true);
+  }
   for (const stored of ['bad JSON', 'null', saved('unknown'),
     JSON.stringify({ choice: 'accepted', expires: Date.now() - 1 }),
     JSON.stringify({ choice: 'accepted', expires: Date.now() + 999 * 86400000 })]) {
@@ -105,10 +120,51 @@ test('decline then accept enables measurement and settings restore focus', () =>
 
 test('storage unavailable fails closed even with a previously accepted choice', () => {
   const h = analyticsHarness({ blocked: true, stored: saved('accepted') });
+  assert.equal(h.nodes['[data-analytics-panel]'].hidden, false);
+  h.click('open');
   h.click('accept');
   assert.equal(h.scripts.length, 0);
   assert.match(h.nodes['[data-analytics-status]'].textContent, /cannot save/);
   h.click('reject');
+  assert.equal(h.scripts.length, 0);
+});
+
+test('dismissal is not consent and suppresses the notice for this tab session only', () => {
+  const h = analyticsHarness();
+  h.click('close');
+  assert.equal(h.nodes['[data-analytics-panel]'].hidden, true);
+  assert.equal(h.storage.has(key), false);
+  assert.equal(h.session.get('tg-analytics-dismissed-v1'), '1');
+  assert.equal(h.scripts.length, 0);
+  assert.equal(h.main.focused, true);
+  const next = analyticsHarness({ dismissed: true });
+  assert.equal(next.nodes['[data-analytics-panel]'].hidden, true);
+  assert.equal(next.scripts.length, 0);
+  next.click('open');
+  assert.equal(next.nodes['[data-analytics-panel]'].hidden, false);
+  assert.equal(analyticsHarness().nodes['[data-analytics-panel]'].hidden, false);
+});
+
+test('Close and Escape dismiss footer settings without requiring or changing consent', () => {
+  for (const stored of [undefined, saved('accepted'), saved('declined')]) {
+    const h = analyticsHarness({ stored });
+    for (const method of ['close', 'escape']) {
+      h.click('open');
+      assert.equal(h.nodes['[data-analytics-panel]'].hidden, false);
+      if (method === 'close') h.click('close');
+      else h.nodes['[data-analytics-panel]'].handlers.keydown({ key: 'Escape', preventDefault() {} });
+      assert.equal(h.nodes['[data-analytics-panel]'].hidden, true);
+      assert.equal(h.nodes['[data-analytics-open]'].focused, true);
+      assert.equal(h.storage.get(key), stored);
+    }
+  }
+});
+
+test('cross-tab preference removal never opens an unsolicited prompt', () => {
+  const h = analyticsHarness({ stored: saved('declined') });
+  h.storage.clear();
+  h.window.handlers.storage({ key: null });
+  assert.equal(h.nodes['[data-analytics-panel]'].hidden, true);
   assert.equal(h.scripts.length, 0);
 });
 

@@ -7,7 +7,20 @@
   const opener = document.querySelector('[data-analytics-open]');
   const reject = document.querySelector('[data-analytics-reject]');
   let loaded = false;
-  let returnFocus = false;
+  let openedFromFooter = false;
+  const dismissedKey = 'tg-analytics-dismissed-v1';
+  function closeChoices() {
+    panel.hidden = true;
+    opener.setAttribute('aria-expanded', 'false');
+    // Dismissing is not consent. Avoid repeating the notice on every page this session.
+    try { sessionStorage.setItem(dismissedKey, '1'); } catch { /* Optional storage. */ }
+    if (openedFromFooter) opener.focus({ preventScroll: true });
+    else {
+      const main = document.getElementById('main-content');
+      main?.setAttribute('tabindex', '-1');
+      main?.focus({ preventScroll: true });
+    }
+  }
 
   function readChoice() {
     try {
@@ -77,24 +90,24 @@
       // Unload already-running tags and listeners, not just the script element.
       if (loaded) { window.location.reload(); return; }
     }
-    panel.hidden = true;
-    if (returnFocus) opener.focus();
-    else {
-      const main = document.getElementById('main-content');
-      if (main) { main.setAttribute('tabindex', '-1'); main.focus(); }
-    }
+    closeChoices();
     loadAnalytics();
   }
 
   document.querySelector('[data-analytics-settings]').hidden = false;
   opener.addEventListener('click', function () {
-    returnFocus = true;
+    openedFromFooter = true;
     panel.hidden = false;
-    status.textContent = choice === 'accepted' ? 'Analytics are currently accepted.' : 'Analytics are currently off.';
+    opener.setAttribute('aria-expanded', 'true');
+    status.textContent = choice === 'accepted' ? 'Google Analytics cookies are allowed.' : 'Google Analytics cookies are off.';
     reject.focus();
   });
   reject.addEventListener('click', () => choose('declined'));
   document.querySelector('[data-analytics-accept]').addEventListener('click', () => choose('accepted'));
+  document.querySelector('[data-analytics-close]').addEventListener('click', closeChoices);
+  panel.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') { event.preventDefault(); closeChoices(); }
+  });
   window.addEventListener('storage', function (event) {
     if (event.key !== key && event.key !== null) return;
     choice = readChoice();
@@ -103,11 +116,16 @@
       clearAnalyticsCookies();
       window.location.reload();
     } else {
-      panel.hidden = choice !== null;
+      panel.hidden = true;
+      opener.setAttribute('aria-expanded', 'false');
       loadAnalytics();
     }
   });
-  panel.hidden = choice !== null;
+  // Small, non-modal notice: never steal focus or treat dismissal as consent.
+  let dismissed = false;
+  try { dismissed = sessionStorage.getItem(dismissedKey) === '1'; } catch { /* Show the notice. */ }
+  panel.hidden = Boolean(choice) || dismissed;
+  opener.setAttribute('aria-expanded', String(!panel.hidden));
   if (choice !== 'accepted') clearAnalyticsCookies();
   loadAnalytics();
 })();
