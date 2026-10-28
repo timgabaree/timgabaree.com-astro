@@ -56,6 +56,13 @@ the shared GTM container and Cloudflare analytics account settings were unchange
 
 ### Local commands
 
+The HTML sitemap also renders every indexed image from `public/sitemap.xml`:
+29 page-image entries (20 distinct files), grouped by their seven associated
+pages. Thumbnails link to the original full-size images and load lazily. The
+shared local/live regression check verifies every thumbnail, link and page
+association so the media gallery cannot silently disappear in a future update.
+This is build-time HTML, with no XSLT dependency or additional browser script.
+
 Use the Node version in `.nvmrc` (`nvm use`), then:
 
 ```bash

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
+import { assertSitemapMedia } from './assert-sitemap-media.mjs';
 
 // Read-only launch checks. Never submits a form, changes DNS, or sends email.
 const base = 'https://timgabaree.com';
@@ -58,6 +59,7 @@ for (const page of pages) { assert.ok(sitemap.includes(`<loc>${base}/${page}</lo
 assert.doesNotMatch(sitemap, /workers\.dev|thank-you|404/); checks++;
 assert.doesNotMatch(sitemap, /xml-stylesheet|\.xsl/i); checks++;
 const sitemapPage = await (await request(`${base}/sitemap`)).text();
+checks += assertSitemapMedia(sitemap, sitemapPage);
 for (const page of pages) { check(sitemapPage.includes(`href="/${page}"`), true, 'HTML sitemap page link'); }
 check((await request(`${base}/sitemap.xsl`, 'HEAD')).status, 404, 'obsolete XSL removed');
 for (const file of ['timgabaree.vcf', 'armypubs/cmhPub_70-128.pdf', 'armypubs/AH104(W).pdf', 'armypubs/AH106(W).pdf']) {

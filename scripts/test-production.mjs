@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile, readdir, stat } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
+import { assertSitemapMedia } from './assert-sitemap-media.mjs';
 
 // Local files only: this suite never contacts the live site or sends email.
 const root = fileURLToPath(new URL('../', import.meta.url));
@@ -79,6 +80,7 @@ assert.doesNotMatch(sitemap, /<loc>[^<]*(?:thank-you|404|workers\.dev)/); checks
 assert.doesNotMatch(sitemap, /xml-stylesheet|\.xsl/i); checks++;
 check(await stat(join(output, 'sitemap.xsl')).then(() => true).catch(() => false), false, 'obsolete XSL is not shipped');
 const sitemapHtml = await readFile(join(output, 'sitemap.html'), 'utf8');
+checks += assertSitemapMedia(sitemap, sitemapHtml);
 for (const page of publicPages) {
   check(sitemapHtml.includes(`href="/${page === 'index' ? '' : page}"`), true, `${page} linked in HTML sitemap`);
 }
