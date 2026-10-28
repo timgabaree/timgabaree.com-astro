@@ -618,4 +618,14 @@ const structuredData = {"@context":"https://schema.org","@graph":[{"@type":"WebS
 <!-- End Related Website Section -->
 
 </main>
+<dialog id="scheduling-dialog" class="scheduling-dialog" aria-labelledby="scheduling-title" aria-describedby="scheduling-help">
+  <div class="scheduling-header">
+    <h2 id="scheduling-title">Schedule with Tim</h2>
+    <button type="button" data-scheduling-close autofocus>Close scheduler</button>
+  </div>
+  <p id="scheduling-help">Use Tab or Shift+Tab to move between the calendar and Close buttons. Escape closes this dialog when focus is outside the calendar.</p>
+  <p><a href="https://calendly.com/timgabaree/meet-with-tim" data-scheduling-direct target="_blank" rel="noopener noreferrer">Open Calendly in a new tab</a> if the calendar does not load or you prefer a full page.</p>
+  <div data-scheduling-frame class="scheduling-frame"></div>
+  <button type="button" data-scheduling-close>Close scheduler</button>
+</dialog>
 </BaseLayout>

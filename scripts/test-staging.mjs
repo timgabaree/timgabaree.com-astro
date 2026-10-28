@@ -26,7 +26,13 @@ for (const path of ['/', '/about', '/contact', '/governance', '/privacy', '/tech
   assert.match(response.headers.get('Cache-Control'), /private, no-store/); checks++;
   const html = await response.text();
   assert.ok(!html.includes('googletagmanager.com/ns.html'), 'Staging analytics iframe must be absent'); checks++;
+  assert.ok(html.includes('data-analytics-enabled="false"'), 'Staging never enables Google analytics'); checks++;
+  assert.ok(html.includes('data-analytics-panel'), 'Privacy choices available for phone testing'); checks++;
+  assert.ok(!html.includes('href="https://www.googletagmanager.com"'), 'No Google preconnect'); checks++;
 }
+const scheduling = await (await request('/contact')).text();
+assert.ok(scheduling.includes('id="scheduling-dialog"'), 'Accessible scheduling dialog deployed'); checks++;
+check((scheduling.match(/data-scheduling-close/g) || []).length, 2, 'Both keyboard Close buttons deployed');
 for (const path of ['/does-not-exist', '/includes/config.php', '/.env', '/css/.htaccess']) {
   const response = await request(path);
   check(response.status, 404, path);

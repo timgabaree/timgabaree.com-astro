@@ -47,8 +47,10 @@ request, including downloads and form endpoints, passes through the Worker.
   are set as Worker secrets. Use an ASCII username and a unique password of at
   least 20 characters. Visitors then see an HTTPS Basic Authentication prompt.
 - All staging responses are private/no-store and carry `X-Robots-Tag: noindex`.
-  Staging robots.txt disallows crawling. Builds default to noindex and omit both
-  the analytics loader and the noscript analytics iframe.
+  Staging robots.txt disallows crawling. Builds default to noindex. Privacy-choice
+  controls are available for phone testing, with a visible preview notice and a
+  build-time gate that blocks Google analytics even after acceptance. No build
+  includes a noscript analytics iframe or Google preconnect.
 - `CONTACT_MODE=dry-run` sends no email and saves no message body.
 - Session tokens and conversion flags expire one hour after issuance; idle
   Durable Objects are automatically cleaned up. Rate counters expire after ten minutes (token issuance
@@ -153,6 +155,28 @@ usage limits and email quotas, and decide who receives failure notifications.
 GitHub holds the source; pushes do not automatically deploy either environment.
 
 ### Launch gates still requiring verification
+
+Analytics now uses a local opt-in gate: no Google preconnect, iframe or tag load
+before acceptance. Production builds show equally prominent accept/decline
+controls and a footer “Privacy choices” button. Preferences expire after 180 days;
+restricted storage fails closed. Withdrawal removes known first-party Google
+measurement cookies and reloads to unload tags. Advertising consent stays denied.
+The hostname guard also prevents analytics on local and staging previews, even
+when previewing a production build. A separate build-time flag blocks tracking
+in staging builds regardless of hostname. Staging displays the same choice
+controls for testing, without Google requests. Custom events are not queued before consent.
+
+Calendly now opens a native dialog containing a titled iframe, with real Close
+buttons before and after the calendar, focus restoration and a direct-link
+fallback. Escape works from the parent dialog; keys inside Calendly's cross-origin
+frame are controlled by Calendly. Tab/Shift+Tab provides an exit to our controls.
+No Calendly resource is requested until the visitor activates Schedule.
+
+The shared GTM container has not been changed. Before launch, verify analytics
+requests/cookies on the actual domain for accept, decline and withdrawal. The
+last published container review found no `contact_form_submission` event tag;
+configure that separately if contact-conversion reporting is wanted. Do not
+publish shared-container changes casually: the live PHP site also uses it.
 
 - Production secrets provisioned; approved production email reaches the mailbox
   without the `[STAGING]` subject prefix. Confirm failed sends do not claim success.

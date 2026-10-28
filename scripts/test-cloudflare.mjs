@@ -33,8 +33,10 @@ try {
     check(response.headers.get('X-Robots-Tag'), 'noindex, nofollow, noarchive', `${page} noindex`);
     const html = await response.text();
     assert.ok(!html.includes('googletagmanager.com/ns.html'), 'No analytics iframe on staging');
-    assert.ok(!html.includes('src="/js/analytics.js"'), 'No analytics loader on staging');
-    checks += 2;
+    assert.ok(html.includes('data-analytics-enabled="false"'), 'Staging analytics must stay disabled');
+    assert.ok(html.includes('data-analytics-panel'), 'Staging consent controls can be tested');
+    assert.ok(!html.includes('href="https://www.googletagmanager.com"'), 'No Google preconnect');
+    checks += 4;
   }
   check((await request('/does-not-exist')).status, 404, 'real missing-page status');
   for (const path of ['/includes/config.php', '/.git/config', '/.env', '/css/.htaccess', '/server-php/contact-submit.php', '/worker/index.ts', '/random.php']) {

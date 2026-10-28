@@ -33,7 +33,11 @@ for (const page of allPages) {
   assert.ok(robots, `${page} has robots metadata`); checks++;
   check(robots.includes('noindex'), !publicPages.includes(page), `${page} correct indexing`);
   check(html.includes('src="/js/analytics.js"'), true, `${page} production analytics loader`);
-  check(html.includes('googletagmanager.com/ns.html?id=GTM-ML7T9TJ8'), true, `${page} production GTM iframe`);
+  check(html.includes('googletagmanager.com/ns.html'), false, `${page} no consent-bypassing iframe`);
+  check(html.includes('href="https://www.googletagmanager.com"'), false, `${page} no pre-consent Google connection`);
+  check(html.includes('data-analytics-panel'), true, `${page} analytics choice panel`);
+  check(html.includes('data-analytics-enabled="true"'), true, `${page} production analytics permission gate`);
+  check(html.includes('data-analytics-open'), true, `${page} persistent privacy control`);
   check(html.includes('Staging site notice'), false, `${page} no staging notice`);
   if (page !== '404') {
     const expected = `https://timgabaree.com/${page === 'index' ? '' : page}`;

@@ -1,0 +1,197 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import vm from 'node:vm';
+
+const analytics = await readFile(new URL('../public/js/analytics.js', import.meta.url), 'utf8');
+const calendly = await readFile(new URL('../public/js/calendly.js', import.meta.url), 'utf8');
+const key = 'tg-analytics-choice-v1';
+const saved = choice => JSON.stringify({ choice, expires: Date.now() + 86400000 });
+
+function element() {
+  return {
+    hidden: true, handlers: {}, children: [], dataset: {}, textContent: '',
+    addEventListener(name, fn) { this.handlers[name] = fn; },
+    focus() { this.focused = true; },
+    setAttribute(name, value) { this[name] = value; },
+    replaceChildren(...children) { this.children = children; },
+    click(event = {}) { this.handlers.click?.(event); },
+  };
+}
+function analyticsHarness({ stored, hostname = 'timgabaree.com', enabled = 'true', blocked = false, cookies = '' } = {}) {
+  const nodes = Object.fromEntries(['panel', 'status', 'open', 'reject', 'accept', 'settings'].map(name => [`[data-analytics-${name}]`, element()]));
+  nodes['[data-analytics-panel]'].dataset.analyticsEnabled = enabled;
+  const storage = new Map(stored === undefined ? [] : [[key, stored]]);
+  const scripts = [], deletedCookies = [];
+  const main = element();
+  let reloads = 0;
+  const document = {
+    querySelector: selector => nodes[selector], getElementById: () => main,
+    createElement: () => element(), head: { appendChild: node => scripts.push(node) },
+    get cookie() { return cookies; }, set cookie(value) { deletedCookies.push(value); },
+  };
+  const localStorage = {
+    getItem: k => storage.get(k) ?? null,
+    setItem(k, v) { if (blocked) throw Error('restricted'); storage.set(k, v); },
+    removeItem(k) { if (blocked) throw Error('restricted'); storage.delete(k); },
+  };
+  const window = { location: { hostname, reload() { reloads++; } }, handlers: {},
+    addEventListener(name, fn) { this.handlers[name] = fn; } };
+  vm.runInNewContext(analytics, { window, document, localStorage });
+  return { nodes, storage, scripts, deletedCookies, window, main, get reloads() { return reloads; },
+    click: name => nodes[`[data-analytics-${name}]`].click() };
+}
+
+test('analytics starts off; decline stores a choice without loading Google or queuing events', () => {
+  const h = analyticsHarness();
+  assert.equal(h.nodes['[data-analytics-panel]'].hidden, false);
+  h.window.siteAnalytics.track({ event: 'pre_consent' });
+  assert.equal(h.window.dataLayer, undefined);
+  h.click('reject');
+  assert.equal(h.scripts.length, 0);
+  assert.equal(JSON.parse(h.storage.get(key)).choice, 'declined');
+  assert.equal(h.nodes['[data-analytics-panel]'].hidden, true);
+  assert.equal(h.main.focused, true);
+});
+
+test('explicit consent loads once with analytics granted and advertising denied; no historical events', () => {
+  const h = analyticsHarness();
+  h.window.siteAnalytics.track({ event: 'old_event' });
+  h.click('accept'); h.click('accept');
+  assert.equal(h.scripts.length, 1);
+  assert.match(h.scripts[0].src, /gtm\.js\?id=GTM-ML7T9TJ8$/);
+  assert.equal(h.window.dataLayer[0][2].ad_storage, 'denied');
+  assert.equal(h.window.dataLayer[0][2].ad_user_data, 'denied');
+  assert.equal(h.window.dataLayer[1][2].analytics_storage, 'granted');
+  assert.equal(h.window.dataLayer.some(value => value.event === 'old_event'), false);
+  h.window.siteAnalytics.track({ event: 'new_event' });
+  assert.equal(h.window.dataLayer.at(-1).event, 'new_event');
+});
+
+test('saved accept and decline persist; expired, malformed and future-dated choices fail closed', () => {
+  assert.equal(analyticsHarness({ stored: saved('accepted') }).scripts.length, 1);
+  assert.equal(analyticsHarness({ stored: saved('declined') }).scripts.length, 0);
+  for (const stored of ['bad JSON', 'null', saved('unknown'),
+    JSON.stringify({ choice: 'accepted', expires: Date.now() - 1 }),
+    JSON.stringify({ choice: 'accepted', expires: Date.now() + 999 * 86400000 })]) {
+    const h = analyticsHarness({ stored });
+    assert.equal(h.scripts.length, 0);
+    assert.equal(h.nodes['[data-analytics-panel]'].hidden, false);
+  }
+});
+
+test('withdrawal removes measurement cookies only, disables measurement and reloads to unload tags', () => {
+  const h = analyticsHarness({ stored: saved('accepted'), cookies: '_ga=1; _ga_ABC=2; _gid=3; contact_session=keep' });
+  h.click('open');
+  assert.equal(h.nodes['[data-analytics-reject]'].focused, true);
+  h.click('reject');
+  assert.equal(h.reloads, 1);
+  assert.equal(h.window['ga-disable-G-WV3F87ZRF2'], true);
+  assert.equal(JSON.parse(h.storage.get(key)).choice, 'declined');
+  assert.equal(h.deletedCookies.length, 9);
+  assert.equal(h.deletedCookies.some(value => value.includes('contact_session')), false);
+  const count = h.window.dataLayer.length;
+  h.window.siteAnalytics.track({ event: 'after_withdrawal' });
+  assert.equal(h.window.dataLayer.length, count);
+});
+
+test('decline then accept enables measurement and settings restore focus', () => {
+  const h = analyticsHarness();
+  h.click('reject'); h.click('open'); h.click('accept');
+  assert.equal(h.window['ga-disable-G-WV3F87ZRF2'], false);
+  assert.equal(h.nodes['[data-analytics-open]'].focused, true);
+  assert.equal(h.scripts.length, 1);
+});
+
+test('storage unavailable fails closed even with a previously accepted choice', () => {
+  const h = analyticsHarness({ blocked: true, stored: saved('accepted') });
+  h.click('accept');
+  assert.equal(h.scripts.length, 0);
+  assert.match(h.nodes['[data-analytics-status]'].textContent, /cannot save/);
+  h.click('reject');
+  assert.equal(h.scripts.length, 0);
+});
+
+test('local, staging and lookalike hosts never load Google even after acceptance', () => {
+  for (const hostname of ['127.0.0.1', 'localhost', 'staging.workers.dev', 'timgabaree.com.attacker.invalid']) {
+    const h = analyticsHarness({ hostname }); h.click('accept');
+    h.window.siteAnalytics.track({ event: 'test' });
+    assert.equal(h.scripts.length, 0);
+    assert.equal(h.window.dataLayer, undefined);
+  }
+});
+
+test('withdrawal or preference deletion in another tab stops already loaded tags', () => {
+  for (const cleared of [false, true]) {
+    const h = analyticsHarness({ stored: saved('accepted') });
+    if (cleared) h.storage.clear(); else h.storage.set(key, saved('declined'));
+    h.window.handlers.storage({ key: cleared ? null : key });
+    assert.equal(h.reloads, 1);
+  }
+});
+
+test('preview build permits testing choices but cannot load Google even on the production hostname', () => {
+  for (const enabled of ['false', undefined]) {
+    const h = analyticsHarness({ enabled: enabled ?? '' });
+    h.click('accept');
+    assert.equal(JSON.parse(h.storage.get(key)).choice, 'accepted');
+    assert.equal(h.scripts.length, 0);
+    assert.equal(h.window.dataLayer, undefined);
+    h.click('open'); h.click('reject');
+    assert.equal(JSON.parse(h.storage.get(key)).choice, 'declined');
+  }
+});
+
+function calendlyHarness(supported = true) {
+  const dialog = element(), frame = element(), direct = element(), trigger = element();
+  const buttons = [element(), element()];
+  const classes = new Set(), events = [];
+  trigger.href = 'https://calendly.com/timgabaree/meet-with-tim';
+  dialog.querySelector = selector => selector === '[data-scheduling-frame]' ? frame : direct;
+  dialog.querySelectorAll = () => buttons;
+  if (supported) dialog.showModal = () => { dialog.open = true; };
+  dialog.close = () => { dialog.open = false; dialog.handlers.close(); };
+  const document = { getElementById: () => dialog, querySelectorAll: () => [trigger],
+    createElement: () => element(), documentElement: { classList: { add: c => classes.add(c), remove: c => classes.delete(c) } } };
+  vm.runInNewContext(calendly, { URL, document, window: { siteAnalytics: { track: e => events.push(e) } } });
+  return { dialog, frame, direct, trigger, buttons, classes, events, document };
+}
+
+test('scheduler opens a labeled iframe only on activation; both close buttons restore focus and remove it', () => {
+  const h = calendlyHarness();
+  assert.equal(h.frame.children.length, 0);
+  for (const button of h.buttons) {
+    let prevented = false;
+    h.trigger.click({ preventDefault() { prevented = true; } });
+    assert.equal(prevented, true);
+    assert.equal(h.dialog.open, true);
+    assert.equal(h.buttons[0].focused, true);
+    assert.equal(h.frame.children[0].title, 'Schedule a meeting with Tim Gabaree');
+    assert.equal(h.frame.children[0].src, h.trigger.href);
+    assert.equal(h.direct.href, h.trigger.href);
+    button.click();
+    assert.equal(h.dialog.open, false);
+    assert.equal(h.frame.children.length, 0);
+    assert.equal(h.trigger.focused, true);
+    assert.equal(h.classes.size, 0);
+  }
+});
+
+test('scheduler keeps normal links without dialog support and respects modifier clicks', () => {
+  const old = calendlyHarness(false);
+  assert.equal(old.trigger.handlers.click, undefined);
+  const h = calendlyHarness();
+  h.trigger.click({ ctrlKey: true, preventDefault() { assert.fail('modifier link intercepted'); } });
+  assert.equal(h.frame.children.length, 0);
+});
+
+test('scheduler wraps Tab and Shift+Tab at its boundary controls', () => {
+  const h = calendlyHarness();
+  for (const shiftKey of [false, true]) {
+    h.document.activeElement = h.buttons[shiftKey ? 0 : 1];
+    let prevented = false;
+    h.dialog.handlers.keydown({ key: 'Tab', shiftKey, preventDefault() { prevented = true; } });
+    assert.equal(prevented, true);
+    assert.equal(h.buttons[shiftKey ? 1 : 0].focused, true);
+  }
+});

@@ -1,6 +1,7 @@
 ---
 import Navigation from '../components/Navigation.astro';
 import Footer from '../components/Footer.astro';
+import AnalyticsChoices from '../components/AnalyticsChoices.astro';
 import pageMetadata from '../data/page-meta.json';
 
 interface Props {
@@ -83,7 +84,6 @@ const imageUrl = new URL(image, siteUrl).toString();
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 
-    <link rel="preconnect" href="https://www.googletagmanager.com" />
     <link
       rel="preload"
       href="/fonts/Roboto-Regular.woff2"
@@ -105,20 +105,12 @@ const imageUrl = new URL(image, siteUrl).toString();
       <script type="application/ld+json" set:html={JSON.stringify(structuredData).replace(/</g, '\\u003c')} />
     )}
 
-    {enableAnalytics && <script is:inline src="/js/analytics.js" defer></script>}
+    <script is:inline src="/js/analytics.js" defer></script>
   </head>
   <body class={meta?.bodyClass || undefined}>
     <a class="skip-link" href="#main-content">Skip to main content</a>
-    {enableAnalytics && <noscript>
-      <iframe
-        src="https://www.googletagmanager.com/ns.html?id=GTM-ML7T9TJ8"
-        height="0"
-        width="0"
-        style="display:none;visibility:hidden"
-      ></iframe>
-    </noscript>}
-
     <Navigation page={page} />
+    <AnalyticsChoices enableAnalytics={enableAnalytics} />
     <slot />
     <Footer page={page} />
 

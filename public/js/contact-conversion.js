@@ -10,8 +10,7 @@
     if (!response.ok) return;
     const result = await response.json();
     if (result.converted !== true) return;
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({
+    window.siteAnalytics?.track({
       event: 'contact_form_submission',
       form_name: 'Continue the Conversation',
       form_location: '/contact',

@@ -1,0 +1,15 @@
+---
+interface Props { enableAnalytics: boolean; }
+const { enableAnalytics } = Astro.props;
+---
+<section class="analytics-choices" data-analytics-panel data-analytics-enabled={enableAnalytics ? 'true' : 'false'} aria-labelledby="analytics-choice-title" hidden>
+  <h2 id="analytics-choice-title">Your privacy choices</h2>
+  {!enableAnalytics && <p><strong>Preview only:</strong> You can test these controls here. Google analytics remains disabled on staging and development previews, even if you accept.</p>}
+  <p>May we use Google Analytics to understand visits and link clicks and improve this website? Optional analytics stay off unless you accept. The site works either way.</p>
+  <p>We remember your choice for six months. Change it anytime using “Privacy choices” in the footer. <a href="/privacy#cookies-title">Read the privacy policy</a>.</p>
+  <p data-analytics-status role="status"></p>
+  <div class="privacy-choice-actions">
+    <button type="button" data-analytics-reject>Decline analytics</button>
+    <button type="button" data-analytics-accept>Accept analytics</button>
+  </div>
+</section>
