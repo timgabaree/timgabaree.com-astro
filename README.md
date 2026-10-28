@@ -459,12 +459,40 @@ fallback. Escape works from the parent dialog; keys inside Calendly's cross-orig
 frame are controlled by Calendly. Tab/Shift+Tab provides an exit to our controls.
 No Calendly resource is requested until the visitor activates Schedule.
 
-The shared GTM container has not been changed. The post-launch review verified
-Google's network requests, measurement cookies and withdrawal; the compact-notice
-release rechecked request acceptance and withdrawal as recorded above. The
-last published container review found no `contact_form_submission` event tag;
-configure that separately if contact-conversion reporting is wanted. Do not
-publish shared-container changes casually: the live PHP site also uses it.
+The post-launch review verified Google's network requests, measurement cookies
+and withdrawal; the compact-notice release rechecked request acceptance and
+withdrawal as recorded above. The shared GTM container also remains referenced
+by the archived PHP site; keep new tracking scoped to Astro production.
+
+Contact-success reporting was enabled on October 27, 2026 in GTM `GTM-ML7T9TJ8`,
+published version 15, “Measure consented Astro contact submissions.” Exactly
+three entities were added: a DOM variable reading `data-analytics-enabled` from
+`#analytics-choices`, a custom-event trigger, and a GA4 event tag. Existing tags
+were unchanged; the workspace had zero pending changes after publication.
+The trigger requires the exact `contact_form_submission` event, hostname
+`timgabaree.com`, path `/thank-you`, and the Astro production marker `true`.
+The tag additionally requires granted `analytics_storage` consent and sends
+`generate_lead` to `G-WV3F87ZRF2`, with only fixed `form_name` (Continue the
+Conversation) and `form_location` (/contact) event parameters. No submitted
+name, email address, phone, organization, topic or message is included.
+
+GA4 property `440546535` registers `generate_lead` as a key event, counted once
+per event with no default monetary value. The existing server-side one-time
+flag is set after Resend accepts a message, not after confirmed inbox delivery.
+Failed sends, honeypots, dry runs and ordinary thank-you visits do not qualify.
+Google reports only consented, unblocked browser events, not every inquiry.
+
+One user-approved live contact test was sent to `tim@timgabaree.com`. The form
+reached `/thank-you`; the conversion response was `true`, and Google's collection
+endpoint accepted exactly one `generate_lead` request with HTTP 204. Refreshing
+the page returned `converted: false` and did not send a second lead event.
+GA4 Realtime then showed `generate_lead` with event count 1 and key-event count 1.
+The test browser's original declined-cookie preference was restored afterward.
+Use Reports > Realtime overview for immediate checks; use the Events report
+under Engagement and select `generate_lead` for processed historical reporting.
+The approved test is included in the initial count; tracking is not retroactive.
+All 28 focused contact/privacy tests passed with mocked provider calls. No
+Astro deployment, GoDaddy change or DNS change was needed for this setup.
 
 Completed: the user confirmed the staging privacy choices and Calendly work in
 their desktop browser. Keyboard navigation, close controls and focus restoration
@@ -480,8 +508,8 @@ changed during this refresh.
 
 The approved cutover and real-domain email gate are complete, as recorded above.
 Keep monitoring enabled and review Cloudflare/Resend usage as traffic develops.
-Phone testing remains explicitly deferred; optional contact-conversion reporting
-and a fuller analytics network/cookie audit are separate follow-ups. No new
+Phone testing remains explicitly deferred; contact-conversion reporting is now
+configured above, while a fuller analytics network/cookie audit is separate. No new
 scheduled automation was created by the cutover. Privacy disclosures describe
 implementation, not a legal compliance audit.
 

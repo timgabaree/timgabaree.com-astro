@@ -86,6 +86,7 @@ for (const page of publicPages) {
 }
 check(sitemapHtml.includes('href="/sitemap.xml"'), true, 'XML sitemap still available');
 const privacy = await readFile(join(output, 'privacy.html'), 'utf8');
+assert.match(privacy.replace(/<[^>]*>/g, '').replace(/\s+/g, ' '), /You may also submit a message through the contact page\./); checks++;
 assert.doesNotMatch(privacy, /GoDaddy Hosting|Staging site notice/); checks++;
 assert.match(privacy, /Resend/); checks++;
 assert.match(privacy, /Cloudflare/); checks++;
