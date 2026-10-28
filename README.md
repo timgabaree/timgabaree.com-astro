@@ -38,7 +38,21 @@ Pre-publication checks passed: Astro/TypeScript (zero diagnostics), 50 unit test
 XML parsing, and desktop/390px-wide browser layout review. Dismissal survives
 navigation/reload in the same tab without enabling Google. No actual phone test
 is claimed. Google Tag Manager, DNS, secrets and GoDaddy resources are unchanged.
-Live publication verification is recorded below after deployment.
+Published from commit `e428d8b` to production Worker version
+`0853521d-4b90-48f5-8f7a-b8dd09627e24`. All 209 read-only live checks passed:
+pages, redirects, security headers, sitemap, download hashes, private staging,
+and email-monitor health/status. `/sitemap.xsl` now returns 404; XML contains no
+stylesheet reference. No contact test or email was sent during this update.
+
+Live Chrome verification: Google filter showed 0/29 requests with the existing
+declined preference; the Cloudflare beacon loaded and `/cdn-cgi/rum` returned 204.
+Allow cookies then loaded the intended GTM/GA4 tags and GA4 page_view returned 204
+for `G-WV3F87ZRF2`. Subsequent withdrawal reloaded the page and returned to zero
+Google requests. The original declined browser preference was restored.
+This verifies request acceptance, not the latency of reporting dashboards.
+The live sitemap/cookie controls rendered correctly; the in-app browser reported
+no console warnings/errors on that page. GoDaddy, all DNS records, credentials,
+the shared GTM container and Cloudflare analytics account settings were unchanged.
 
 ### Local commands
 
@@ -438,9 +452,9 @@ fallback. Escape works from the parent dialog; keys inside Calendly's cross-orig
 frame are controlled by Calendly. Tab/Shift+Tab provides an exit to our controls.
 No Calendly resource is requested until the visitor activates Schedule.
 
-The shared GTM container has not been changed. Live script-load behavior was
-checked for accept, decline and withdrawal; a full network/cookie audit remains
-a separate follow-up. The
+The shared GTM container has not been changed. The post-launch review verified
+Google's network requests, measurement cookies and withdrawal; the compact-notice
+release rechecked request acceptance and withdrawal as recorded above. The
 last published container review found no `contact_form_submission` event tag;
 configure that separately if contact-conversion reporting is wanted. Do not
 publish shared-container changes casually: the live PHP site also uses it.
