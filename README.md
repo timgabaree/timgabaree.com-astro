@@ -21,13 +21,13 @@ before this documentation-only cleanup. Browser access was confirmed under
 `timgabaree`; GitHub currently reports this repository as public. No visibility
 or account settings were changed during this review.
 
-Production's version was rechecked before and after the October 28 staging
-deployment and is unchanged. Staging was updated October 28; the monitoring
+Production was updated directly with the owner-approved plain-language copy on
+October 28. Staging remains on the earlier October 28 release; the monitoring
 version remains the October 27 record, not a fresh monitoring audit.
 
 | Environment | Recorded version | State at last deployment |
 | --- | --- | --- |
-| Production | `d59fcf0b-ae40-4d91-88af-b8dec825bef6` | Live; monitoring, QR accessibility, mobile performance and privacy-spacing fixes |
+| Production | `21a51b63-d72a-42b5-86e8-57f32755443c` | Live; plain-language copy plus existing monitoring, QR, performance and privacy fixes |
 | Staging | `3f14b5fb-66f3-4578-8cfd-6aa5c88eb679` | Updated October 28 with QR/performance changes; password protection and hosted asset checks passed |
 | Email monitor | `6686f411-a606-4bd3-b265-be12cfc1dfbf` | Persistent primary/fallback failure status; automatic DOWN alert received and recovery recorded |
 
@@ -59,6 +59,31 @@ Local preview always uses no-email mode; successful test submissions do not
 claim real delivery. See the operations guide for validation and deployment scope.
 
 ## Latest recorded verification
+
+### October 28 plain-language production update
+
+Owner approved direct production publication for review. Revised Home, About,
+Technology Leadership, Business Results from Technology, Governance and Contact;
+aligned navigation, sitemap labels and search/social descriptions. Existing page
+URLs, styles, images, downloads, financial figures and testimonials are preserved.
+Projected savings and identified duplicate spending remain qualified. The shorter
+copy naturally changes line wrapping and section height, not the design system.
+
+Zero Astro/TypeScript diagnostics, 62 unit tests and 328 production build checks
+passed before upload. After publication, all 298 read-only live checks passed;
+all seven revised pages' main content and search descriptions matched the build,
+as did the published stylesheet and analytics, contact-form and Calendly scripts.
+Desktop homepage and 390-pixel responsive page checks found no horizontal
+overflow; the live desktop homepage was visually verified. This is browser
+emulation, not a physical-phone or new PageSpeed test. The previous production version was
+`d59fcf0b-ae40-4d91-88af-b8dec825bef6`; publication used version upload/deployment,
+without changing custom domains or routes. No contact test email was sent.
+Staging, analytics/consent behavior, monitoring configuration, GoDaddy and all DNS
+were left unchanged. The owner reviewed and approved the live wording, then
+authorized committing and pushing the source, regression tests and these notes
+to the Astro repository. Git publication does not perform another deployment.
+
+### Earlier staging verification
 
 October 28 staging update from source `1154bdc`: zero Astro/TypeScript diagnostics,
 59 unit tests, 88 local runtime/build checks, 73 online staging checks and 29
@@ -115,8 +140,9 @@ was performed. The live site, GoDaddy and all email DNS were unchanged.
   indexed; allow the aggregate report to catch up rather than treating its old
   totals as new failures. Do not infer indexing from sitemap discovery alone.
 
-The October 28 deployment changed only staging. Production, GoDaddy, DNS,
-monitoring settings and credentials were unchanged; no contact email was sent.
+The earlier October 28 staging deployment did not change production. The later
+plain-language production update is recorded above. Neither changed GoDaddy,
+DNS, monitoring settings or credentials; no contact email was sent.
 
 ## Project layout
 
