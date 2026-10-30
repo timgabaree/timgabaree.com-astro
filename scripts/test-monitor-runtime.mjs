@@ -38,10 +38,10 @@ async function stop() {
     if (child.exitCode === null) throw Error('Local monitor did not stop; preserve test directory: ' + temp);
   }
 }
-function signed() {
-  const body = JSON.stringify({ type: 'email.failed', data: { to: ['tim@timgabaree.com'],
+function signed(type = 'email.failed', id = 'msg_local_runtime') {
+  const body = JSON.stringify({ type, created_at: new Date().toISOString(), data: { to: ['tim@timgabaree.com'],
     tags: { application: 'timgabaree-contact', environment: 'staging' } } });
-  const id = 'msg_local_runtime', date = new Date();
+  const date = new Date();
   return request('/resend', { method: 'POST', body, headers: {
     'Content-Type': 'application/json', 'svix-id': id,
     'svix-timestamp': String(Math.floor(date.getTime() / 1000)), 'svix-signature': new Webhook(secret).sign(id, date, body),
@@ -73,6 +73,14 @@ try {
   check((await signed()).status, 204);
   check((await request('/delivery-status')).status, 200);
   check((await (await admin('status')).json()).incidents.length, 0);
+  check((await signed('email.failed', 'msg_auto_failure')).status, 204);
+  check((await request('/delivery-status')).status, 503);
+  check((await signed('email.delivered', 'msg_auto_recovery')).status, 204);
+  check((await request('/delivery-status')).status, 200);
+  const history = await (await admin('history')).json();
+  check(history.stores.some(s => s.history.some(i => i.resolution === 'verified_delivery')), true);
+  await stop(); await start();
+  check((await request('/delivery-status')).status, 200);
   console.log(`${checks} local monitoring runtime checks passed, including restart and fallback recovery. No email sent.`);
 } finally {
   await stop();

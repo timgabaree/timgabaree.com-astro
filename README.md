@@ -22,14 +22,16 @@ before this documentation-only cleanup. Browser access was confirmed under
 or account settings were changed during this review.
 
 Production was updated directly with the owner-approved plain-language copy on
-October 28. Staging remains on the earlier October 28 release; the monitoring
-version remains the October 27 record, not a fresh monitoring audit.
+October 28. Staging remains on the earlier October 28 release. The monitoring
+Worker was updated October 30 with automatic recovery. UptimeRobot was reorganized on
+October 29 into seven Tim checks within the five-site Solo 50 fleet; alerts go to
+`tim@timgabaree.com` per Tim's clarification; Gmail remains the account login. See the operations guide for current coverage.
 
 | Environment | Recorded version | State at last deployment |
 | --- | --- | --- |
 | Production | `21a51b63-d72a-42b5-86e8-57f32755443c` | Live; plain-language copy plus existing monitoring, QR, performance and privacy fixes |
 | Staging | `3f14b5fb-66f3-4578-8cfd-6aa5c88eb679` | Updated October 28 with QR/performance changes; password protection and hosted asset checks passed |
-| Email monitor | `6686f411-a606-4bd3-b265-be12cfc1dfbf` | Persistent primary/fallback failure status; automatic DOWN alert received and recovery recorded |
+| Email monitor | `8a50dacb-3ae0-4015-82b4-bcbd020b5423` | October 30 automatic recovery; signed delivery confirmations, scheduled storage checks and private resolution history |
 
 Included features:
 

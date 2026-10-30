@@ -1,4 +1,110 @@
 import { test } from 'node:test';
+
+test('scheduled handler automatically resolves runtime failure after sustained checks', async t => {
+  t.mock.method(console, 'error', () => {});
+  let now = Date.now(); t.mock.method(Date, 'now', () => now);
+  const e = env(), get = e.DELIVERY_STATUS.get;
+  e.DELIVERY_STATUS.get = id => ({ fetch: async (url, opts) => {
+    if (new URL(url).pathname === '/probe') throw Error('simulated storage failure');
+    return get(id).fetch(url, opts);
+  } });
+  await assert.rejects(monitor.scheduled({}, e));
+  e.DELIVERY_STATUS.get = get;
+  for (let i = 0; i < 3; i++) { now += 60000; await monitor.scheduled({}, e); }
+  assert.equal((await (await monitor.fetch(adminRequest('status'), e)).json()).incidents.length, 0);
+  assert.ok((await (await monitor.fetch(adminRequest('history'), e)).json()).stores.some(s =>
+    s.history.some(i => i.resolution === 'healthy_storage_checks')));
+});
+
+test('new signed delivery clears only its environment; history survives restart and duplicate delivery', async t => {
+  t.mock.method(console, 'error', () => {});
+  let now = Date.now(); t.mock.method(Date, 'now', () => now);
+  const e = env();
+  await monitor.fetch(request(), e);
+  const staging = event(); staging.data.tags.environment = 'staging';
+  await monitor.fetch(request(staging, { id: 'msg_staging' }), e);
+  assert.equal((await (await monitor.fetch(adminRequest('status'), e)).json()).incidents.length, 2);
+  now += 1000;
+  const delivered = { ...event('email.delivered'), created_at: new Date(now).toISOString() };
+  assert.equal((await monitor.fetch(request(delivered, { id: 'msg_delivery' }), e)).status, 204);
+  const remaining = (await (await monitor.fetch(adminRequest('status'), e)).json()).incidents;
+  assert.equal(remaining.length, 1); assert.equal(remaining[0].environment, 'staging');
+  e.__restart();
+  const history = await (await monitor.fetch(adminRequest('history'), e)).json();
+  assert.ok(history.stores.some(s => s.history.some(i => i.resolution === 'verified_delivery')));
+  assert.doesNotMatch(JSON.stringify(history), /PRIVATE|@/);
+  now += 1000;
+  await monitor.fetch(request(event(), { id: 'msg_new_failure' }), e);
+  await monitor.fetch(request(delivered, { id: 'msg_delivery_retry' }), e);
+  assert.equal((await (await monitor.fetch(adminRequest('status'), e)).json()).incidents.length, 2);
+});
+
+test('stale, missing, future, unsigned and wrong-recipient delivery cannot clear an incident', async t => {
+  t.mock.method(console, 'error', () => {});
+  const e = env(); await monitor.fetch(request(), e);
+  const dates = [undefined, 'invalid', new Date(Date.now() - 10000).toISOString(), new Date(Date.now() + 60000).toISOString()];
+  for (const created_at of dates) {
+    await monitor.fetch(request({ ...event('email.delivered'), created_at }), e);
+    assert.equal((await monitor.fetch(statusRequest(), e)).status, 503);
+  }
+  const good = { ...event('email.delivered'), created_at: new Date().toISOString() };
+  assert.equal((await monitor.fetch(request(good, { signature: '' }), e)).status, 400);
+  good.data.to = ['other@example.invalid'];
+  await monitor.fetch(request(good), e);
+  assert.equal((await monitor.fetch(statusRequest(), e)).status, 503);
+});
+
+test('runtime recovery requires spaced healthy checks, preserves delivery incidents and rejects stale revision', async t => {
+  let now = Date.now(); t.mock.method(Date, 'now', () => now);
+  const f = fixture();
+  const call = (path, body) => f.fetch('https://status.internal' + path, body ? { method: 'POST', body: JSON.stringify(body) } : {});
+  const record = (issue, environment = 'production') => call('/record', { key: crypto.randomUUID().replaceAll('-', '').repeat(2), environment, issue });
+  await record('monitor_runtime_error'); const revision = f.values.get('incident').revision;
+  await record('send_rejected');
+  const recover = () => call('/recover-runtime', { revision });
+  await recover(); await recover(); await recover();
+  assert.equal((await (await call('/status')).json()).incidents.length, 2);
+  now += 60000; await recover(); f.restart();
+  now += 60000; await recover();
+  assert.equal((await (await call('/status')).json()).incidents.length, 2); // minimum incident age
+  now += 60000; await recover();
+  const left = (await (await call('/status')).json()).incidents;
+  assert.equal(left.length, 1); assert.equal(left[0].issue, 'send_rejected');
+  assert.ok(f.values.get('history').some(i => i.resolution === 'healthy_storage_checks'));
+  await record('monitor_runtime_error'); await recover();
+  assert.equal((await (await call('/status')).json()).incidents.length, 2);
+});
+
+test('legacy incident migrates; long check gaps reset recovery and manual test never auto-clears', async t => {
+  let now = Date.now(); t.mock.method(Date, 'now', () => now);
+  const f = fixture(), revision = crypto.randomUUID();
+  f.values.set('incident', { revision, environment: 'production', issue: 'monitor_runtime_error', detectedAt: new Date(now - 300000).toISOString() });
+  const recover = () => f.fetch('https://status.internal/recover-runtime', { method: 'POST', body: JSON.stringify({ revision }) });
+  await recover(); now += 60000; await recover(); now += 180000; await recover();
+  assert.ok(f.values.get('incident'));
+  now += 60000; await recover(); now += 60000; await recover(); assert.equal(f.values.get('incident'), undefined);
+  await f.fetch('https://status.internal/record', { method: 'POST', body: JSON.stringify({ key: 'b'.repeat(64), environment: 'staging', issue: 'monitor_self_test' }) });
+  await f.fetch('https://status.internal/delivered', { method: 'POST', body: JSON.stringify({ environment: 'staging', occurredAt: now }) });
+  assert.equal(f.values.get('incident').issue, 'monitor_self_test');
+});
+
+test('scheduled recovery fails closed on any failed storage probe and cannot be invoked over public HTTP', async t => {
+  t.mock.method(console, 'error', () => {});
+  const e = env(), get = e.DELIVERY_STATUS.get;
+  e.DELIVERY_STATUS.get = id => ({ fetch: async (url, opts) => {
+    if (new URL(url).pathname === '/probe') throw Error('PRIVATE');
+    return get(id).fetch(url, opts);
+  } });
+  await assert.rejects(monitor.scheduled({}, e));
+  const status = await (await monitor.fetch(adminRequest('status'), e)).json();
+  assert.ok(status.incidents.some(i => i.issue === 'monitor_runtime_error'));
+  for (const path of ['/probe', '/recover-runtime', '/delivered']) {
+    assert.equal((await monitor.fetch(new Request('https://monitor.example' + path, { method: 'POST', body: '{}' }), e)).status, 404);
+  }
+  e.DELIVERY_STATUS.get = get;
+  await monitor.scheduled({}, e);
+  assert.ok((await (await monitor.fetch(adminRequest('status'), e)).json()).incidents.length);
+});
 import assert from 'node:assert/strict';
 import { Webhook } from 'svix';
 import monitor, { DeliveryStatus } from '../worker/email-monitor.ts';
@@ -164,7 +270,7 @@ test('failure is latched across restarts, exposes no details, and needs authenti
   assert.equal((await monitor.fetch(statusRequest(), e)).status, 200);
 });
 
-test('a stale acknowledgement cannot clear a newer failure; successes cannot clear failures', async t => {
+test('stale acknowledgements and deliveries without event timestamps cannot clear failures', async t => {
   t.mock.method(console, 'error', () => {});
   const e = env(); await monitor.fetch(request(), e);
   const revision = e.__values.get('incident').revision;
@@ -213,12 +319,12 @@ test('malformed status fails closed without exposing upstream redirects', async 
   assert.equal(response.headers.get('Cache-Control'), 'no-store');
 });
 
-test('a transient status-read exception is durably latched after recovery and restart', async t => {
+test('exhausted status-read retries are durably latched after recovery and restart', async t => {
   t.mock.method(console, 'error', () => {});
   const e = env(), original = e.DELIVERY_STATUS.get;
-  let fail = true;
+  let fail = 3;
   e.DELIVERY_STATUS.get = id => ({ fetch: async (url, options) => {
-    if (fail && new URL(url).pathname === '/status') { fail = false; throw Error('PRIVATE'); }
+    if (fail > 0 && id.name === 'contact-delivery' && new URL(url).pathname === '/status') { fail--; throw Error('PRIVATE'); }
     return original(id).fetch(url, options);
   } });
   assert.equal((await monitor.fetch(statusRequest(), e)).status, 503);

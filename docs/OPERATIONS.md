@@ -83,11 +83,23 @@ disabled; Cloudflare may add operational metadata.
 
 ## Monitoring and incident response
 
-UptimeRobot Solo 10 is the verified alert path, with email to `tim@timgabaree.com`.
-The five monitors cover homepage, contact page, PDF, receiver health and persistent
-contact failures. Checks run every minute. The homepage includes certificate-error
-checks and expiry reminders at 30, 14, 7 and 0 days. A notification test does not
-simulate an expired certificate.
+UptimeRobot Solo 50 annual is the alert path. Tim clarified `tim@timgabaree.com`
+as the alert destination on October 29; login remains `timgabaree@gmail.com`. Seven active Tim checks cover homepage
+content/TLS (804475314), exact www redirect/TLS (804475315), contact-page markup
+(804475327), form readiness (804475328), PDF (804450935), receiver health
+(804451011), and persistent contact failures (804451162). Homepage/email checks
+run every minute, www/contact checks every five minutes, and PDF HEAD checks every
+15 minutes. Old homepage/contact checks are paused with history preserved.
+Certificate expiry reminders at 30/14/7/0 days apply once per hostname, and the
+tim@timgabaree.com contact's expiry notifications are enabled. Tim's existing homepage SMS/voice
+channels are retained on the replacement homepage monitor.
+
+The full five-site inventory and configuration script are maintained in the sibling
+`carriegabaree.com-astro/MONITORING.md` and `scripts/fleet-monitoring.mjs`. There are
+23 active fleet checks plus six paused historical checks, no active duplicate
+endpoints. The October 29 reorganization left Tim's receiver unchanged; the
+October 30 recovery release is documented below. A notification test does
+not simulate an expired certificate, and no recurring contact emails are sent.
 
 - `/health` reports configuration presence, not provider credentials or delivery.
 - `/delivery-status` returns 200 if no unresolved incident exists, otherwise 503
@@ -98,7 +110,7 @@ simulate an expired certificate.
   provider events, immediate send errors and receiver runtime errors.
 - Writes retry three times with a three-second timeout per attempt. A separate
   fallback Durable Object records immediate/receiver errors when the primary
-  cannot persist them. Both are checked; successful email does not clear incidents.
+  cannot persist them. Both are checked. Recovery rules are below.
 
 This is object-level redundancy within Cloudflare, not a second storage provider.
 A simultaneous write outage ending between polls can escape detection. A healthy
@@ -110,8 +122,9 @@ Use Node from `.nvmrc` to inspect an incident:
 node scripts/email-monitor-admin.mjs status
 ```
 
-Investigate the failure and review both incident slots. Only after resolution,
-acknowledge the exact reviewed revision:
+Most resolved incidents now recover automatically. Investigate alerts while they
+are active. If manual recovery is needed, review every incident and only after
+resolution acknowledge the exact reviewed revision:
 
 ```bash
 node scripts/email-monitor-admin.mjs acknowledge <reviewed-revision>
@@ -122,6 +135,40 @@ failure; deduplication prevents retries reopening an old one. The helper reads
 a mode-0600 key outside Dropbox/Git at
 `~/.config/timgabaree-email-monitor/admin-key`, or `MONITOR_ADMIN_KEY_FILE`.
 Never place credentials in URLs, arguments, screenshots, Git or chat.
+
+### Automatic recovery — October 30, 2026
+
+- A signed Resend `email.delivered` event clears delivery failures only for the
+  matching site, environment and configured recipient, and only when the event
+  occurred after the failure was recorded. Missing, future or stale timestamps,
+  unrelated mail, form thank-you pages and `email.sent` do not clear incidents.
+- A one-minute Cloudflare Cron Trigger checks reads and writes on every monitor
+  store. Runtime incidents clear after at least three spaced healthy checks over
+  two minutes, with a minimum incident age of three minutes. A failed check
+  records a fresh runtime incident; a gap over 150 seconds restarts the streak.
+  Public requests cannot advance recovery.
+- Production/staging and delivery/runtime/test incidents are kept separately.
+  Manual diagnostic tests still require acknowledgement. Local tests cover
+  recovery, restarts, stale notifications, concurrent incident categories and
+  site/environment isolation.
+- The last 100 resolved/superseded records per store retain only revision,
+  environment, operational code, timestamps and resolution. Read with
+  `node scripts/email-monitor-admin.mjs history`. UptimeRobot history is unchanged.
+- Resend's existing five failure events remain subscribed; `email.delivered`
+  is added to the same verified webhook. No keys, recipients or email DNS change.
+- Delivery means recipient-server acceptance, not guaranteed inbox placement.
+  Quarantine and mail rules can still hide accepted mail.
+
+Monitor-only release: `8a50dacb-3ae0-4015-82b4-bcbd020b5423`.
+Previous version: `6686f411-a606-4bd3-b265-be12cfc1dfbf`.
+Do not casually roll back the status-store schema: old code understands only one
+summary incident; retain this multi-incident reader/writer when repairing a release.
+No website deployment or new contact inquiry was performed.
+Verification: 83 unit tests, 28 local workerd runtime checks, Worker TypeScript
+checks and deployment dry run passed. Local signed failure/delivery events recovered
+without manual acknowledgement and remained recovered after restart; unit tests
+verified timed runtime recovery. Live private stores were empty and both Tim
+email monitors were UP. No synthetic live outage/recovery notification was sent.
 
 Only for an explicitly approved hosted alert test:
 
