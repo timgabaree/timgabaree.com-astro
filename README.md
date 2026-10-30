@@ -1,5 +1,7 @@
 # timgabaree.com — Astro site
 
+**Website update buttons:** [Start here — numbered WebStorm workflow](WEBSITE-WORKFLOW/00-START-HERE.md). In WebStorm, open the run-configuration dropdown and choose **WEBSITE WORKFLOW**. Setup alone does not commit, push, upload or publish.
+
 The live site runs on Cloudflare Workers at [timgabaree.com](https://timgabaree.com).
 `www` redirects to the apex. This repository is separate from the legacy PHP
 project; GoDaddy files and shared hosting are retained for archive and rollback.

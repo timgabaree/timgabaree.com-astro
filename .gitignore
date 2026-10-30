@@ -25,3 +25,5 @@ yarn-error.log*
 .pnp.js
 
 .vscode/*
+# Local website publishing receipts (never credentials or Git source)
+/.website-workflow-local/

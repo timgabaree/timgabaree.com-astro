@@ -1,0 +1,30 @@
+{
+  "domain": "timgabaree.com",
+  "branch": "master",
+  "worker": "timgabaree-com-astro-production",
+  "checks": [
+    [
+      "run",
+      "prepare:production"
+    ]
+  ],
+  "liveChecks": [
+    [
+      "npm",
+      "run",
+      "test:live"
+    ]
+  ],
+  "livePages": [
+    "/",
+    "/about",
+    "/contact",
+    "/privacy",
+    "/sitemap",
+    "/technology-leadership",
+    "/value-creation",
+    "/governance"
+  ],
+  "repository": "timgabaree.com-astro",
+  "account": "7459bd2037d71d23fd030e3542b9df61"
+}
