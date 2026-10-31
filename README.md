@@ -1,161 +1,102 @@
-# timgabaree.com — Astro site
+# Tim Gabaree — Astro
 
-**Website update buttons:** [Start here — numbered WebStorm workflow](WEBSITE-WORKFLOW/00-START-HERE.md). In WebStorm, open the run-configuration dropdown and choose **WEBSITE WORKFLOW**. Setup alone does not commit, push, upload or publish.
+Professional website covering technology leadership, business results, governance, experience, and contact information.
 
-The live site runs on Cloudflare Workers at [timgabaree.com](https://timgabaree.com).
-`www` redirects to the apex. This repository is separate from the legacy PHP
-project; GoDaddy files and shared hosting are retained for archive and rollback.
+Live site: [timgabaree.com](https://timgabaree.com/).
 
-## Start here
+## How it is built
 
-- [Operations guide](docs/OPERATIONS.md): environments, checks,
-  analytics, backups and rollback safeguards.
-- [October 27 launch record](docs/history/2026-10-27-launch-record.md): preserved
-  test evidence and deployment history, not current operating instructions.
-- [Source repository](https://github.com/timgabaree/timgabaree.com-astro): `master`.
-  Git pushes do **not** deploy the website.
+Astro generates static HTML and assets. A TypeScript Cloudflare Worker serves those assets and handles redirects, security headers, and protected staging. Small browser scripts provide interactive behavior; there is no PHP runtime in the deployed site.
 
-## Status reviewed October 28, 2026
+Responsive portraits and QR contact links, résumé/contact downloads, an on-demand Calendly dialog, and HTML/XML sitemaps with an image gallery.
 
-GitHub and the local checkout matched application release
-[`1ed2e58`](https://github.com/timgabaree/timgabaree.com-astro/commit/1ed2e58c69a84e21a4309f204bee9bd4deddaeba)
-before this documentation-only cleanup. Browser access was confirmed under
-`timgabaree`; GitHub currently reports this repository as public. No visibility
-or account settings were changed during this review.
+The toolchain uses Node.js (version pinned in `.nvmrc`), npm, TypeScript, and Wrangler. `package-lock.json` pins dependency versions.
 
-Production was updated directly with the owner-approved plain-language copy on
-October 28. Staging remains on the earlier October 28 release.
+## Project structure
 
-| Environment | Recorded version | State at last deployment |
-| --- | --- | --- |
-| Production | `21a51b63-d72a-42b5-86e8-57f32755443c` | Live; plain-language copy plus existing QR, performance and privacy fixes |
-| Staging | `3f14b5fb-66f3-4578-8cfd-6aa5c88eb679` | Updated October 28 with QR/performance changes; password protection and hosted asset checks passed |
+- `src/pages/` — page content and routes.
+- `src/layouts/`, `src/components/` — shared page shell, navigation, footer, and privacy controls.
+- `src/data/page-meta.json` — page metadata.
+- `public/` — styles, browser scripts, media, downloads, and the XML sitemap.
+- `worker/` — request handling, contact validation, and persistent form-security state.
+- `scripts/`, `tests/` — asset preparation and automated checks.
 
-Included features:
-
-- Compact cookie notice; Google Analytics opt-in and independent cookie-free
-  Cloudflare Web Analytics. Footer privacy controls remain available.
-- Consented contact-success reporting as GA4 `generate_lead`, verified end to end.
-- XSLT-free HTML sitemap with image gallery; XML sitemap retained for crawlers.
-- Keyboard-accessible Calendly controls and a single QR image/caption link.
-- Responsive AVIF images, matching preloads and minified published CSS, preserving
-  original assets and the site's appearance.
-- Resend contact email with enforced TLS.
-
-## Monitoring
-
-Services: UptimeRobot and Cloudflare.
+Add pages with the shared layout, update navigation and metadata, and keep the sitemap in sync. Responsive AVIF derivatives are generated from original images during development and builds. Legacy PHP files are reference material, not deployment assets.
 
 ## Local development
 
-Use Node **24.22.1** from `.nvmrc` (the system Node 16 is too old):
+Install the Node version in `.nvmrc`, then run:
 
-```bash
+```sh
 nvm use
 npm ci
 npm run dev
 ```
 
-Pages preview at `http://127.0.0.1:4321`. For the local Cloudflare contact handler,
-run `npm run build` then `npm run preview` at `http://127.0.0.1:8787`.
-Local preview always uses no-email mode; successful test submissions do not
-claim real delivery. See the operations guide for validation and deployment scope.
+Astro's development server previews page content. To test Worker routing and form handling locally:
 
-## Latest recorded verification
+```sh
+npm run build:staging
+npm run preview
+```
 
-### October 28 plain-language production update
+Use the local URL printed by each server. The command above uses no-email mode; a successful local form test does not send a message.
 
-Owner approved direct production publication for review. Revised Home, About,
-Technology Leadership, Business Results from Technology, Governance and Contact;
-aligned navigation, sitemap labels and search/social descriptions. Existing page
-URLs, styles, images, downloads, financial figures and testimonials are preserved.
-Projected savings and identified duplicate spending remain qualified. The shorter
-copy naturally changes line wrapping and section height, not the design system.
+## Validation
 
-Zero Astro/TypeScript diagnostics, 62 unit tests and 328 production build checks
-passed before upload. After publication, all 298 read-only live checks passed;
-all seven revised pages' main content and search descriptions matched the build,
-as did the published stylesheet and analytics, contact-form and Calendly scripts.
-Desktop homepage and 390-pixel responsive page checks found no horizontal
-overflow; the live desktop homepage was visually verified. This is browser
-emulation, not a physical-phone or new PageSpeed test. The previous production version was
-`d59fcf0b-ae40-4d91-88af-b8dec825bef6`; publication used version upload/deployment,
-without changing custom domains or routes. No contact test email was sent.
-Staging, analytics/consent behavior, GoDaddy and all DNS
-were left unchanged. The owner reviewed and approved the live wording, then
-authorized committing and pushing the source, regression tests and these notes
-to the Astro repository. Git publication does not perform another deployment.
+```sh
+npm run prepare:production
+```
 
-### Earlier staging verification
+The preparation command runs type checks, tests, a production build, configuration checks, and a deployment dry run; it does not publish.
 
-October 28 staging update from source `1154bdc`: zero Astro/TypeScript diagnostics,
-59 unit tests, 88 local runtime/build checks, 73 online staging checks and 29
-additional hosted QR/image/CSS checks passed. Homepage/About HTML, all four AVIF
-images and the stylesheet match the fresh staging build exactly. Optimized images
-return 401 without authentication; Google analytics remains disabled on staging.
-All 298 read-only live checks also passed; production's deployed version is unchanged.
-No contact email was submitted. After the owner handled Chrome's look-alike-address
-warning, authenticated browser review confirmed a single named QR link on Home
-and About: Tab advances to the phone link, Shift+Tab returns to the QR link, and
-Enter opens staging's contact page. Desktop layout and a 390x812 responsive
-preview were reviewed; Home and About have no horizontal overflow. The narrow
-homepage loads the 600-pixel AVIF portrait, while desktop loads the 900-pixel
-version. Google tag scripts remain absent. This is browser emulation, not a
-physical-phone test or a new PageSpeed measurement.
+`npm run test:integration` checks the local Worker. `npm run test:live` checks the deployed site without submitting a contact message.
 
-The October 27 release passed 59 unit tests,
-328 production build/configuration checks, 88 local runtime checks,
-298 read-only live checks and 73 online staging checks. These are recorded
-release results, not tests rerun by the October 28 documentation cleanup.
+## Cloudflare deployment
 
-PageSpeed lab results: **mobile 96 performance / 100 accessibility**;
-**desktop 100 / 100**. Best practices and SEO were 100 on both.
-[Mobile report](https://pagespeed.web.dev/analysis/https-timgabaree-com/sdtvb113p1?form_factor=mobile)
-and [desktop report](https://pagespeed.web.dev/analysis/https-timgabaree-com/sdtvb113p1?form_factor=desktop).
-Lab scores vary and do not prove real-device performance or complete accessibility.
+Staging and production use separate Workers:
 
-### Google indexing confirmed October 28, 2026
+- `wrangler.jsonc` — staging configuration; assets built to `dist/`.
+- `wrangler.production.jsonc` — production configuration; assets built to `dist-production/`.
 
-Read-only Search Console URL Inspection confirmed **Page is indexed / URL is on
-Google** for `/governance`, `/technology-leadership`, `/value-creation` and the
-new HTML `/sitemap`. The three previously pending content pages were crawled by
-Googlebot smartphone on October 27; each reported a successful fetch, crawling
-and indexing allowed, and the inspected URL as Google's selected canonical.
+Staging uses HTTP Basic authentication with `STAGING_USER` and `STAGING_PASSWORD` stored as Cloudflare secrets. It is excluded from indexing and does not load Google Analytics. After configuring credentials and infrastructure, `npm run deploy:staging` builds and publishes staging.
 
-The submitted XML sitemap reports **Success**, last read October 27, with eight
-discovered pages. Discovery count is not an indexed-page count. The aggregate
-Page indexing report still has an October 22 update date and shows five indexed
-and ten excluded URLs; it has not caught up with these individual inspections.
-Its one "Crawled - currently not indexed" example is `https://hello.timgabaree.com/`,
-not an Astro page. The four other sitemap URLs were not individually re-inspected
-in this follow-up, so this is not a fresh eight-page indexing audit.
+Production redirects HTTP and `www` to the HTTPS apex. Public production `workers.dev` and version-preview URLs are disabled. Apex and www use Cloudflare Custom Domains.
 
-No Request indexing, Validate fix, sitemap resubmission or configuration change
-was performed. The live site, GoDaddy and all email DNS were unchanged.
+For an **existing, configured production Worker**, run validation, commit and push the source, then:
 
-## Remaining follow-up
+```sh
+npx wrangler versions upload --config wrangler.production.jsonc
+# Replace VERSION_ID with the version returned by the upload.
+npx wrangler versions deploy VERSION_ID@100 --config wrangler.production.jsonc
+```
 
-- Confirm the second GoDaddy archive has synced to Dropbox off-device.
-- Physical-phone testing remains deferred by the owner; desktop and responsive
-  preview checks are recorded, not a completed phone test.
-- Continue Search Console indexing, analytics, Resend delivery and usage/quota
-  reviews. The previously pending content pages are now confirmed
-  indexed; allow the aggregate report to catch up rather than treating its old
-  totals as new failures. Do not infer indexing from sitemap discovery alone.
+Upload does not shift traffic; the deployment command does. Verify the published pages, redirects, assets, and privacy controls afterward. Git pushes do not deploy the website. Keep the previous version available for a reviewed rollback.
 
-The earlier October 28 staging deployment did not change production. The later
-plain-language production update is recorded above. Neither changed GoDaddy,
-DNS or credentials; no contact email was sent.
+The optional [WebStorm workflow](WEBSITE-WORKFLOW/00-START-HERE.md) provides separate check, commit, push, upload, publish, and verification actions.
 
-## Project layout
+## Contact email
 
-- `src/` — Astro pages, layouts and components.
-- `public/` — original assets, sitemap and downloads; optimized images are generated.
-- `worker/` — routing, authentication, contact security and email delivery.
-- `scripts/`, `tests/` — build preparation and regression checks.
-- `docs/` — operations and clearly separated historical evidence.
-- `server-php/` — legacy reference only; never uploaded in a Cloudflare build.
+The Worker validates submissions, applies CSRF/replay and rate-limit protection, and sends through Resend. Cloudflare Durable Objects hold temporary form-security state. Configure `RESEND_API_KEY`, `CONTACT_FROM`, and `CONTACT_TO` as secrets in each environment.
 
-Keep secrets, archives, generated builds/images and screenshots out of Git.
-Do not alter GoDaddy's shared Web Hosting Deluxe account (`rgesol.com` is primary),
-the PHP sibling, other hosted sites or mailbox/Resend DNS as routine Astro work.
+Use separate sending-only keys scoped to a verified sender domain. Keep delivery encrypted and open/click tracking disabled. The recipient is server-controlled; visitor email is used only for Reply-To. Provider acceptance or a thank-you page does not prove inbox delivery. Use a controlled end-to-end test when validating email.
+
+## Privacy and analytics
+
+Google Analytics loads only after opt-in on production. Visitors can reopen privacy choices from the footer; dismissal is not consent. Cloudflare Web Analytics is configured separately at the edge; avoid adding a duplicate beacon. Contact message contents are not sent to analytics.
+
+## Adapting this project
+
+This is a site-specific implementation, not an account-neutral starter:
+
+1. Replace content, branding, metadata, domain references, analytics identifiers, and privacy/contact details.
+2. Set your own Cloudflare account, Worker names, hostnames, routes, and environment variables. Keep production closed until setup and checks are complete.
+3. Provision the resources and bindings referenced by the Worker configurations in your own account, including Durable Objects and any cross-Worker dependencies. Configure secrets outside Git.
+4. Update host-specific tests and verification scripts. The optional WebStorm helpers also enforce repository ownership, branch, and account identity; adapt both `WEBSITE-WORKFLOW/site.json` and the guards in `workflow.mjs` before reuse.
+5. Establish staging, then production infrastructure and routing separately. The version-upload sequence above is for subsequent releases, not a complete first-time provisioning procedure.
+
+Keep credentials, generated builds, archives, and local reports out of Git and public assets. Use only content and media you have permission to reuse. During a hosting migration, preserve unrelated sites and email DNS.
+
+## Monitoring
+
+Services: UptimeRobot and Cloudflare.

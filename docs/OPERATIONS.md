@@ -1,9 +1,8 @@
 # Astro operations guide
 
 Documentation scope updated October 30, 2026; based on repository configuration
-and recorded launch evidence. Versions and historical test counts are centralized in the
-[README](../README.md). Original website timestamps, intermediate versions
-and detailed test results remain in the
+and recorded launch evidence. See the [README](../README.md) for project architecture,
+development, and deployment. Historical website versions and test results remain in the
 [archived launch record](history/2026-10-27-launch-record.md).
 
 ## Environments and release boundaries
@@ -107,9 +106,8 @@ grouped under seven pages. `/sitemap.xml` remains the crawler source, referenced
 by robots.txt. There is no XSLT dependency; `/sitemap.xsl` intentionally returns 404.
 Regression checks cover thumbnails, original-image links and page associations.
 
-For the dated Search Console results, see
-[Google indexing verification](../README.md#google-indexing-confirmed-october-28-2026).
-Compare the aggregate report's update date with individual URL Inspection results;
+For current indexing status, use Search Console. Compare the aggregate report's
+update date with individual URL Inspection results;
 older exclusion totals can lag newly indexed pages. Sitemap Success confirms
 processing, not that every discovered URL is indexed. Keep redirect/legacy-host
 examples separate from the current Astro URLs when reviewing exclusions.
