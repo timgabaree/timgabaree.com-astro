@@ -1,5 +1,7 @@
 # Astro operations guide
 
+Account, deployment, and email-event identifiers, origin addresses, and machine-specific paths are shown as placeholders where applicable. Use your own configuration and backup records for actual values; placeholders are not deployable values.
+
 Documentation scope updated October 30, 2026; based on repository configuration
 and recorded launch evidence. See the [README](../README.md) for project architecture,
 development, and deployment. Historical website versions and test results remain in the
@@ -87,8 +89,8 @@ Cloudflare's edge-injected cookie-free Web Analytics is independent of the Googl
 choice; do not add a duplicate beacon. No IP-to-person lookup or fingerprinting
 feature is implemented. Privacy text describes behavior, not a legal compliance audit.
 
-GTM `GTM-ML7T9TJ8` version 15 added consented contact reporting to GA4
-`G-WV3F87ZRF2` / property `440546535`. The trigger requires
+GTM `YOUR_GTM_CONTAINER_ID` version 15 added consented contact reporting to GA4
+`YOUR_GA_MEASUREMENT_ID` / property `YOUR_GA_PROPERTY_ID`. The trigger requires
 `contact_form_submission`, exact apex hostname, `/thank-you` and the Astro
 production marker. The tag requires granted `analytics_storage` and sends
 `generate_lead` with fixed form name/location only, never submitted personal data.
@@ -127,18 +129,18 @@ Extraction matched remote file hashes. No live or complete Apache restoration
 was tested; no site-specific database or active hosting-user cron dependency was
 identified. Account-wide mailboxes/services and TLS private keys are excluded.
 
-- Original tar: `/Volumes/StudioStack NVMe/Website Archives/timgabaree.com/2026-10-27-pre-cutover/godaddy-timgabaree.com.tar.gz`.
+- Original tar: `<PRIMARY_ARCHIVE_ROOT>/timgabaree.com/2026-10-27-pre-cutover/godaddy-timgabaree.com.tar.gz`.
   SHA-256: `b918d619387ad48ef8ff14931da0ebeea1827a065f891cf2cdc9be3342753886`.
 - Second plain ZIP, no password as requested:
-  `/Volumes/StudioStack NVMe/Dropbox/Work Files/Websites/Archive/timgabaree.com-GoDaddy-2026-10-27/godaddy-timgabaree.com-backup.zip`.
+  `<SECONDARY_ARCHIVE_ROOT>/timgabaree.com-GoDaddy-2026-10-27/godaddy-timgabaree.com-backup.zip`.
   SHA-256: `94e42aeb8336284eac08d426ec21dbf385dbccb7fe23521612a58c4202505174`.
 - Checksums/ZIP integrity were verified October 27. Off-device Dropbox sync awaits
   owner confirmation; local existence does not establish cloud synchronization.
 - Launch DNS snapshots/evidence remain outside Git in
-  `/Volumes/StudioStack NVMe/Website Archives/timgabaree.com/2026-10-27-launch/`.
+  `<PRIMARY_ARCHIVE_ROOT>/timgabaree.com/2026-10-27-launch/`.
 
 Rollback requires explicit approval and a fresh review of website records.
-Saved values are apex A `72.167.204.130` and www CNAME `timgabaree.com`,
+Saved values are apex A `ORIGIN_IPV4` and www CNAME `timgabaree.com`,
 both proxied with TTL Auto. Do not import an entire old DNS export over current
 mailbox, Resend or unrelated records. Remove/disable conflicting Astro website
 bindings and restore approved website routing, then verify PHP before re-locking

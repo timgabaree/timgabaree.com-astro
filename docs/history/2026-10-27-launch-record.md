@@ -1,5 +1,7 @@
 # Archived launch and hardening record — October 27, 2026
 
+Account, deployment, and email-event identifiers, origin addresses, and machine-specific paths are shown as placeholders where applicable. Use your own configuration and backup records for actual values; placeholders are not deployable values.
+
 Historical website snapshot, with detailed monitoring records omitted from these
 project notes in the October 30 documentation cleanup. Earlier text remains in Git
 history. This file contains superseded deployment states, test counts and instructions. **Do not use this archive as the current runbook.**
@@ -28,8 +30,8 @@ deployment instructions or unresolved launch gates.
 
 | Environment | Deployed version | Status |
 | --- | --- | --- |
-| Production | `d59fcf0b-ae40-4d91-88af-b8dec825bef6` | Live; includes QR, performance and privacy-spacing fixes |
-| Staging | `e178c625-fbbd-4f71-bed7-a79948acbdff` | Private; latest QR/performance changes built/tested locally only |
+| Production | `DEPLOYMENT_VERSION_1` | Live; includes QR, performance and privacy-spacing fixes |
+| Staging | `DEPLOYMENT_VERSION_2` | Private; latest QR/performance changes built/tested locally only |
 
 - Latest homepage PageSpeed lab scores: mobile 96 performance / 100 accessibility;
   desktop 100 / 100. Both have 100 best practices and SEO. The linked reports and
@@ -78,14 +80,14 @@ XML parsing, and desktop/390px-wide browser layout review. Dismissal survives
 navigation/reload in the same tab without enabling Google. No actual phone test
 is claimed. Google Tag Manager, DNS, secrets and GoDaddy resources are unchanged.
 Published from commit `e428d8b` to production Worker version
-`0853521d-4b90-48f5-8f7a-b8dd09627e24`. All 209 read-only live checks passed:
+`DEPLOYMENT_VERSION_3`. All 209 read-only live checks passed:
 pages, redirects, security headers, sitemap, download hashes and private staging. `/sitemap.xsl` now returns 404; XML contains no
 stylesheet reference. No contact test or email was sent during this update.
 
 Live Chrome verification: Google filter showed 0/29 requests with the existing
 declined preference; the Cloudflare beacon loaded and `/cdn-cgi/rum` returned 204.
 Allow cookies then loaded the intended GTM/GA4 tags and GA4 page_view returned 204
-for `G-WV3F87ZRF2`. Subsequent withdrawal reloaded the page and returned to zero
+for `YOUR_GA_MEASUREMENT_ID`. Subsequent withdrawal reloaded the page and returned to zero
 Google requests. The original declined browser preference was restored.
 This verifies request acceptance, not the latency of reporting dashboards.
 The live sitemap/cookie controls rendered correctly; the in-app browser reported
@@ -209,7 +211,7 @@ Never serve a legacy build through a generic static server: it contains PHP sour
 ## Production deployment
 
 The explicitly approved cutover completed October 27, 2026 (America/Chicago;
-October 28 UTC). The initial launch version was `51d4ce62-df27-462a-a4d8-48c9a2fbc58a`;
+October 28 UTC). The initial launch version was `DEPLOYMENT_VERSION_4`;
 the current version is listed in Current release status above. Production serves
 both `timgabaree.com` and `www.timgabaree.com` as Cloudflare Custom Domains.
 `PRODUCTION_ENABLED=true`; workers.dev and preview URLs remain disabled. Staging
@@ -228,7 +230,7 @@ Launch verification:
   Close control restored focus to Schedule and removed the iframe. No booking made.
 - One approved live-form submission, **Cloudflare Live Cutover Test**, reached the
   thank-you page. Resend recorded Delivered at 20:27 local time, email ID
-  `01a1801e-3f87-7b51-8c4b-649dc8ab7f80`, tagged production. Tim confirmed inbox
+  `EMAIL_EVENT_ID_1`, tagged production. Tim confirmed inbox
   receipt at `tim@timgabaree.com` in this launch review.
 - All 144 remote GoDaddy file hashes still match the archived manifest. Shared
   hosting, addon-domain mappings and other sites were untouched.
@@ -238,7 +240,7 @@ Launch verification:
   attached both Custom Domains without deleting any further DNS records.
 
 Evidence and before/resume/after DNS snapshots are outside Git at
-`/Volumes/StudioStack NVMe/Website Archives/timgabaree.com/2026-10-27-launch/`.
+`<PRIMARY_ARCHIVE_ROOT>/timgabaree.com/2026-10-27-launch/`.
 The configuration, launch-check script and these notes are included in the
 approved launch commit. No credential values belong in these records.
 
@@ -262,8 +264,8 @@ remain in `dist/`. Neither generated folder belongs in Git.
 
 The still-closed production Worker was refreshed on October 27, 2026 (America/Chicago;
 October 28 UTC).
-Its then-deployed version was `8349cf75-eed2-4ca0-8a92-8fbdb6f76c66`,
-replacing `ef90c1c5-be10-4b09-979c-8b8a8c3d3cd8`. It includes updated privacy disclosures, analytics opt-in and an accessible Calendly dialog. Cloudflare reported **no deployed
+Its then-deployed version was `DEPLOYMENT_VERSION_5`,
+replacing `DEPLOYMENT_VERSION_6`. It includes updated privacy disclosures, analytics opt-in and an accessible Calendly dialog. Cloudflare reported **no deployed
 targets**. Remote version metadata confirms `PRODUCTION_ENABLED=false`, no preview,
 and all assets passing through the Worker. `workers.dev` and preview URLs remain
 disabled, and the configuration's route list remains empty.
@@ -272,7 +274,7 @@ Production secrets `RESEND_API_KEY`, `CONTACT_FROM`, and `CONTACT_TO` remain
 installed; no secret values are recorded here. Production keeps its original,
 separate contact-security Durable Object namespace. This was not a live launch: no DNS, domain
 bindings, GoDaddy files, or shared-hosting settings were changed. Staging was
-refreshed to version `68af1c46-7070-4b91-8ee9-4f9a80337f9c` and retains Basic Auth.
+refreshed to version `DEPLOYMENT_VERSION_7` and retains Basic Auth.
 
 Verification for this refresh: Astro/TypeScript had zero errors, warnings or hints;
 46 unit tests, 180 production build/configuration checks, 80 local Worker runtime
@@ -336,7 +338,7 @@ and withdrawal; the compact-notice release rechecked request acceptance and
 withdrawal as recorded above. The shared GTM container also remains referenced
 by the archived PHP site; keep new tracking scoped to Astro production.
 
-Contact-success reporting was enabled on October 27, 2026 in GTM `GTM-ML7T9TJ8`,
+Contact-success reporting was enabled on October 27, 2026 in GTM `YOUR_GTM_CONTAINER_ID`,
 published version 15, “Measure consented Astro contact submissions.” Exactly
 three entities were added: a DOM variable reading `data-analytics-enabled` from
 `#analytics-choices`, a custom-event trigger, and a GA4 event tag. Existing tags
@@ -344,11 +346,11 @@ were unchanged; the workspace had zero pending changes after publication.
 The trigger requires the exact `contact_form_submission` event, hostname
 `timgabaree.com`, path `/thank-you`, and the Astro production marker `true`.
 The tag additionally requires granted `analytics_storage` consent and sends
-`generate_lead` to `G-WV3F87ZRF2`, with only fixed `form_name` (Continue the
+`generate_lead` to `YOUR_GA_MEASUREMENT_ID`, with only fixed `form_name` (Continue the
 Conversation) and `form_location` (/contact) event parameters. No submitted
 name, email address, phone, organization, topic or message is included.
 
-GA4 property `440546535` registers `generate_lead` as a key event, counted once
+GA4 property `YOUR_GA_PROPERTY_ID` registers `generate_lead` as a key event, counted once
 per event with no default monetary value. The existing server-side one-time
 flag is set after Resend accepts a message, not after confirmed inbox delivery.
 Failed sends, honeypots, dry runs and ordinary thank-you visits do not qualify.
@@ -389,7 +391,7 @@ implementation, not a legal compliance audit.
 
 The deployed GoDaddy addon-domain root was verified and archived on October 27,
 not inferred from the local Git checkout. The archive is stored outside Git and
-Dropbox at `/Volumes/StudioStack NVMe/Website Archives/timgabaree.com/2026-10-27-pre-cutover/`.
+Dropbox at `<PRIMARY_ARCHIVE_ROOT>/timgabaree.com/2026-10-27-pre-cutover/`.
 The tarball `godaddy-timgabaree.com.tar.gz` contains 144 regular files (166 total
 entries), including hidden configuration and downloads; sibling sites are excluded.
 Its SHA-256 is `b918d619387ad48ef8ff14931da0ebeea1827a065f891cf2cdc9be3342753886`,
@@ -401,7 +403,7 @@ site-specific database dependency or active hosting-user cron entry was identifi
 The archive excludes account-wide services, mailboxes and TLS private keys; it is
 access-restricted but not independently encrypted. A second, plain ZIP archive
 was subsequently created at the user's explicit request (no password):
-`/Volumes/StudioStack NVMe/Dropbox/Work Files/Websites/Archive/timgabaree.com-GoDaddy-2026-10-27/godaddy-timgabaree.com-backup.zip`.
+`<SECONDARY_ARCHIVE_ROOT>/timgabaree.com-GoDaddy-2026-10-27/godaddy-timgabaree.com-backup.zip`.
 Its SHA-256 is `94e42aeb8336284eac08d426ec21dbf385dbccb7fe23521612a58c4202505174`.
 The checksum and ZIP integrity were rechecked for this source-control release.
 The user will verify Dropbox cloud synchronization later; a local copy does not
@@ -411,7 +413,7 @@ The original archive report is historical: its TLS 1.0 note and older test count
 predate the later TLS hardening and this production refresh.
 
 Website rollback values confirmed in the pre-cutover snapshot: apex A
-`72.167.204.130`, www CNAME `timgabaree.com`, both proxied with TTL Auto. Do not
+`ORIGIN_IPV4`, www CNAME `timgabaree.com`, both proxied with TTL Auto. Do not
 blindly import the full DNS export or overwrite unrelated changes.
 
 The launch evidence folder records the DNS snapshots and attached Custom Domains.
@@ -429,7 +431,7 @@ while its domain bindings remain active would return 503 instead of restoring PH
 
 ## Homepage accessibility and mobile performance (October 27, 2026)
 
-Published production version `d59fcf0b-ae40-4d91-88af-b8dec825bef6` after local
+Published production version `DEPLOYMENT_VERSION_1` after local
 visual and keyboard checks. The homepage and About page now use a single contact
 link around the QR image and caption, preserving the original image/caption
 positions and visible text while eliminating adjacent undersized targets.
