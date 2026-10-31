@@ -8,7 +8,7 @@ project; GoDaddy files and shared hosting are retained for archive and rollback.
 
 ## Start here
 
-- [Operations guide](docs/OPERATIONS.md): environments, checks, email monitoring,
+- [Operations guide](docs/OPERATIONS.md): environments, checks,
   analytics, backups and rollback safeguards.
 - [October 27 launch record](docs/history/2026-10-27-launch-record.md): preserved
   test evidence and deployment history, not current operating instructions.
@@ -24,16 +24,12 @@ before this documentation-only cleanup. Browser access was confirmed under
 or account settings were changed during this review.
 
 Production was updated directly with the owner-approved plain-language copy on
-October 28. Staging remains on the earlier October 28 release. The monitoring
-Worker was updated October 30 with automatic recovery. UptimeRobot was reorganized on
-October 29 into seven Tim checks within the five-site Solo 50 fleet; alerts go to
-`tim@timgabaree.com` per Tim's clarification; Gmail remains the account login. See the operations guide for current coverage.
+October 28. Staging remains on the earlier October 28 release.
 
 | Environment | Recorded version | State at last deployment |
 | --- | --- | --- |
-| Production | `21a51b63-d72a-42b5-86e8-57f32755443c` | Live; plain-language copy plus existing monitoring, QR, performance and privacy fixes |
+| Production | `21a51b63-d72a-42b5-86e8-57f32755443c` | Live; plain-language copy plus existing QR, performance and privacy fixes |
 | Staging | `3f14b5fb-66f3-4578-8cfd-6aa5c88eb679` | Updated October 28 with QR/performance changes; password protection and hosted asset checks passed |
-| Email monitor | `8a50dacb-3ae0-4015-82b4-bcbd020b5423` | October 30 automatic recovery; signed delivery confirmations, scheduled storage checks and private resolution history |
 
 Included features:
 
@@ -44,8 +40,11 @@ Included features:
 - Keyboard-accessible Calendly controls and a single QR image/caption link.
 - Responsive AVIF images, matching preloads and minified published CSS, preserving
   original assets and the site's appearance.
-- Resend contact email with enforced TLS; UptimeRobot failure/certificate alerts.
-  The older Cloudflare SQL alert is disabled, not deleted.
+- Resend contact email with enforced TLS.
+
+## Monitoring
+
+Services: UptimeRobot and Cloudflare.
 
 ## Local development
 
@@ -82,7 +81,7 @@ overflow; the live desktop homepage was visually verified. This is browser
 emulation, not a physical-phone or new PageSpeed test. The previous production version was
 `d59fcf0b-ae40-4d91-88af-b8dec825bef6`; publication used version upload/deployment,
 without changing custom domains or routes. No contact test email was sent.
-Staging, analytics/consent behavior, monitoring configuration, GoDaddy and all DNS
+Staging, analytics/consent behavior, GoDaddy and all DNS
 were left unchanged. The owner reviewed and approved the live wording, then
 authorized committing and pushing the source, regression tests and these notes
 to the Astro repository. Git publication does not perform another deployment.
@@ -104,7 +103,7 @@ homepage loads the 600-pixel AVIF portrait, while desktop loads the 900-pixel
 version. Google tag scripts remain absent. This is browser emulation, not a
 physical-phone test or a new PageSpeed measurement.
 
-The October 27 release passed 59 unit tests, 22 monitoring-runtime checks,
+The October 27 release passed 59 unit tests,
 328 production build/configuration checks, 88 local runtime checks,
 298 read-only live checks and 73 online staging checks. These are recorded
 release results, not tests rerun by the October 28 documentation cleanup.
@@ -139,20 +138,20 @@ was performed. The live site, GoDaddy and all email DNS were unchanged.
 - Confirm the second GoDaddy archive has synced to Dropbox off-device.
 - Physical-phone testing remains deferred by the owner; desktop and responsive
   preview checks are recorded, not a completed phone test.
-- Continue Search Console indexing, analytics, certificate/uptime, Resend delivery
-  and usage/quota reviews. The previously pending content pages are now confirmed
+- Continue Search Console indexing, analytics, Resend delivery and usage/quota
+  reviews. The previously pending content pages are now confirmed
   indexed; allow the aggregate report to catch up rather than treating its old
   totals as new failures. Do not infer indexing from sitemap discovery alone.
 
 The earlier October 28 staging deployment did not change production. The later
 plain-language production update is recorded above. Neither changed GoDaddy,
-DNS, monitoring settings or credentials; no contact email was sent.
+DNS or credentials; no contact email was sent.
 
 ## Project layout
 
 - `src/` — Astro pages, layouts and components.
 - `public/` — original assets, sitemap and downloads; optimized images are generated.
-- `worker/` — routing, authentication, contact security and email monitoring.
+- `worker/` — routing, authentication, contact security and email delivery.
 - `scripts/`, `tests/` — build preparation and regression checks.
 - `docs/` — operations and clearly separated historical evidence.
 - `server-php/` — legacy reference only; never uploaded in a Cloudflare build.

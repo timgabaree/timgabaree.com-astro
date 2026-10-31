@@ -1,8 +1,8 @@
 # Archived launch and hardening record — October 27, 2026
 
-Historical snapshot: the former README is preserved below without changing its
-recorded evidence. It contains superseded deployment states, diagnostic steps,
-test counts and instructions. **Do not use this archive as the current runbook.**
+Historical website snapshot, with detailed monitoring records omitted from these
+project notes in the October 30 documentation cleanup. Earlier text remains in Git
+history. This file contains superseded deployment states, test counts and instructions. **Do not use this archive as the current runbook.**
 Use the [project overview](../../README.md) and [operations guide](../OPERATIONS.md).
 Dates and words such as "current" below refer to the original October 27 record,
 not the date this file is read. Later sections can supersede earlier ones.
@@ -21,26 +21,21 @@ site must not change or cancel the shared account or affect its other domains.
 
 ## Current release status — October 27, 2026
 
-This release records the deployed monitoring hardening, homepage/About QR
+This release records the homepage/About QR
 accessibility fix, mobile image/rendering optimization, and updated operating
 notes. Older verification records below are historical snapshots, not current
 deployment instructions or unresolved launch gates.
 
 | Environment | Deployed version | Status |
 | --- | --- | --- |
-| Production | `d59fcf0b-ae40-4d91-88af-b8dec825bef6` | Live; includes monitoring, QR, performance and privacy-spacing fixes |
-| Staging | `e178c625-fbbd-4f71-bed7-a79948acbdff` | Private; monitoring hardening deployed; latest QR/performance changes built/tested locally only |
-| Email monitor | `6686f411-a606-4bd3-b265-be12cfc1dfbf` | Retries and persistent fallback deployed; automatic alert received and recovery verified |
+| Production | `d59fcf0b-ae40-4d91-88af-b8dec825bef6` | Live; includes QR, performance and privacy-spacing fixes |
+| Staging | `e178c625-fbbd-4f71-bed7-a79948acbdff` | Private; latest QR/performance changes built/tested locally only |
 
-- The older Cloudflare SQL email-failure alert is disabled, not deleted.
-  UptimeRobot is the verified primary alert path; Cloudflare logging and
-  certificate alerts remain enabled. See the monitoring section for limits and
-  safe incident acknowledgement.
 - Latest homepage PageSpeed lab scores: mobile 96 performance / 100 accessibility;
   desktop 100 / 100. Both have 100 best practices and SEO. The linked reports and
   visual/keyboard verification are recorded below; these are not real-device or
   field-performance guarantees.
-- Current checks: 59 unit tests, 22 monitoring runtime checks, 328 production
+- Current checks: 59 unit tests, 328 production
   build/configuration checks, 88 local site runtime checks, 298 read-only live
   checks, and 73 online staging checks. No new contact email is needed for this
   source-control release.
@@ -48,7 +43,7 @@ deployment instructions or unresolved launch gates.
   are unchanged. Generated builds, image derivatives, archives, local credentials
   and screenshots are not committed to this source repository.
 - Remaining follow-up: user verification of Dropbox cloud synchronization,
-  optional physical-phone testing, and normal indexing/analytics/monitoring
+  optional physical-phone testing, and normal indexing/analytics
   review. Deploying the current source to staging is a separate action; a Git
   push does not publish either environment.
 
@@ -84,8 +79,7 @@ navigation/reload in the same tab without enabling Google. No actual phone test
 is claimed. Google Tag Manager, DNS, secrets and GoDaddy resources are unchanged.
 Published from commit `e428d8b` to production Worker version
 `0853521d-4b90-48f5-8f7a-b8dd09627e24`. All 209 read-only live checks passed:
-pages, redirects, security headers, sitemap, download hashes, private staging,
-and email-monitor health/status. `/sitemap.xsl` now returns 404; XML contains no
+pages, redirects, security headers, sitemap, download hashes and private staging. `/sitemap.xsl` now returns 404; XML contains no
 stylesheet reference. No contact test or email was sent during this update.
 
 Live Chrome verification: Google filter showed 0/29 requests with the existing
@@ -114,7 +108,6 @@ npm ci
 npm run dev
 npm run check
 npm test
-npm run test:monitoring
 npm run build
 npm run test:integration
 npm run preview
@@ -227,7 +220,7 @@ Launch verification:
 
 - 140 read-only live checks passed: pages, canonical URLs, HTTP/www and legacy
   redirects, security headers, real 404s, robots/sitemap, byte-identical PDF/vCard
-  downloads, private staging, disabled production workers.dev and monitoring probes.
+  downloads, private staging, disabled production workers.dev.
 - TLS 1.2 succeeded; TLS 1.1 was rejected. No TLS settings changed at cutover.
 - On the actual domain, Google tag scripts were absent before consent, appeared
   after acceptance, and were absent after withdrawal/reload. This DOM-level check
@@ -237,9 +230,6 @@ Launch verification:
   thank-you page. Resend recorded Delivered at 20:27 local time, email ID
   `01a1801e-3f87-7b51-8c4b-649dc8ab7f80`, tagged production. Tim confirmed inbox
   receipt at `tim@timgabaree.com` in this launch review.
-- All five UptimeRobot monitors reported Up after launch. Homepage certificate
-  data is populated (Google Trust Services, expires December 1, 2026). The prior
-  synthetic email-failure incident remains resolved; no new failure was injected.
 - All 144 remote GoDaddy file hashes still match the archived manifest. Shared
   hosting, addon-domain mappings and other sites were untouched.
 - All 23 non-website DNS records present when this turn resumed were preserved
@@ -267,16 +257,13 @@ results below describe the earlier closed deployment, not the current live state
 
 `wrangler.production.jsonc` targets the separate `timgabaree-com-astro-production`
 Worker in the intended Cloudflare account. Its contact-security Durable Objects
-belong to that Worker, not staging. Only sanitized failure-status data is shared
-with the separate monitoring Worker. Production builds go to `dist-production/`; staging builds
+belong to that Worker, not staging. Production builds go to `dist-production/`; staging builds
 remain in `dist/`. Neither generated folder belongs in Git.
 
 The still-closed production Worker was refreshed on October 27, 2026 (America/Chicago;
-October 28 UTC) with the monitoring implementation included in this repository.
+October 28 UTC).
 Its then-deployed version was `8349cf75-eed2-4ca0-8a92-8fbdb6f76c66`,
-replacing `ef90c1c5-be10-4b09-979c-8b8a8c3d3cd8`. It includes persistent sanitized
-email-failure status and updated monitoring privacy disclosures, alongside the analytics opt-in and
-accessible Calendly dialog. Cloudflare reported **no deployed
+replacing `ef90c1c5-be10-4b09-979c-8b8a8c3d3cd8`. It includes updated privacy disclosures, analytics opt-in and an accessible Calendly dialog. Cloudflare reported **no deployed
 targets**. Remote version metadata confirms `PRODUCTION_ENABLED=false`, no preview,
 and all assets passing through the Worker. `workers.dev` and preview URLs remain
 disabled, and the configuration's route list remains empty.
@@ -289,10 +276,9 @@ refreshed to version `68af1c46-7070-4b91-8ee9-4f9a80337f9c` and retains Basic Au
 
 Verification for this refresh: Astro/TypeScript had zero errors, warnings or hints;
 46 unit tests, 180 production build/configuration checks, 80 local Worker runtime
-checks, 12 real-runtime monitoring checks, and 73 online staging checks passed.
-Both site builds and the separate monitoring deployment dry run passed before
-upload. No contact email was submitted; the signed synthetic monitoring test is
-described below. These checks establish
+checks and 73 online staging checks passed.
+Both site builds passed before upload. No contact email was submitted.
+These checks establish
 build/configuration safety; actual-domain behavior still requires cutover testing.
 
 ```bash
@@ -321,223 +307,10 @@ The earlier approved private production email test was delivered and confirmed
 by the recipient on October 27. That tested the adapter and credentials, not the
 final public-domain form path. No repeat email was sent during this refresh.
 
-Operational error logs are now enabled, with automatic invocation logs disabled.
-The application emits only a fixed `TG_CONTACT_ALERT` marker, environment, and
-failure code. It never logs form contents, email addresses, credentials, raw IPs,
-or provider responses. Cloudflare may add its own operational metadata.
+Application logs exclude form contents, email addresses, credentials, raw IPs
+and provider responses.
 Check account usage limits and email quotas before launch.
 GitHub holds the source; pushes do not automatically deploy either environment.
-
-### Contact delivery and certificate monitoring
-
-UptimeRobot Solo 10 is active. The homepage monitor has certificate-error checks
-and expiry reminders at 30, 14, 7, and 0 days, with email alerts to
-`tim@timgabaree.com`. Public homepage, contact-page and PDF checks run every minute.
-The notification destination test was sent; that is not a simulated expired
-certificate. Certificate data was populated during launch verification; continue
-checking renewal/expiry status in the dashboard.
-The separate receiver's `/health` endpoint is also checked every minute by
-UptimeRobot monitor `804451011` and has reported Up.
-
-`wrangler.monitoring.jsonc` deploys a separate Worker at
-`https://timgabaree-com-astro-email-monitor.timgabaree-com-astro.workers.dev`.
-It has no site assets, email sending credentials, custom domains, or live routes.
-Public probes are `/health` (configuration health) and `/delivery-status`
-(200 for no unacknowledged failure, 503 for a latched failure or unavailable state).
-They return no incident details. `/resend` accepts only verified signed POST events.
-`/admin/status`, `/admin/acknowledge`, and `/admin/test` require a separate bearer secret;
-acknowledgement is POST-only and checks the reviewed incident revision.
-`RESEND_WEBHOOK_SECRET` and `MONITOR_ADMIN_KEY` are Cloudflare secrets, never Git files.
-The Resend subscription includes `email.failed`, `email.bounced`,
-`email.delivery_delayed`, `email.suppressed`, and `email.complained`.
-
-The receiver verifies the raw body using Svix, including timestamp tolerance,
-limits body size, requires our application/environment tags and the fixed
-recipient, and deduplicates event IDs using hashed keys for seven days. It does
-not store webhook bodies. Unsupported events are silently ignored; invalid
-signatures are rejected without logging attacker-controlled values. Signed
-delivery failures and immediate sending failures emit the same fixed marker.
-Cloudflare's older `timgabaree.com contact email failure` SQL threshold monitor
-(ID `5956322cda36451d95eac81481ac9311`) is **disabled, not deleted**, as approved
-on October 27 after the fallback test and confirmed automatic UptimeRobot email.
-Its saved query remains scoped to the fixed marker in the three Astro Workers,
-with destination `tim@timgabaree.com`, five-minute evaluation, 15-minute average,
-threshold above zero, and one-hour repeat limits. Its automatic notification
-delivery was never verified. Cloudflare logging remains enabled and unchanged;
-UptimeRobot is the verified operational failure-alert path.
-
-#### Persistent failure status and UptimeRobot
-
-The primary failure monitor is UptimeRobot `804451162`, named
-`timgabaree.com - Contact email failures`, checking `/delivery-status` every minute
-with immediate email alerts to `tim@timgabaree.com` and hourly reminders. It accepts
-2xx only and does not follow redirects. Receiver health is monitored separately.
-The current monitoring Worker version is `6686f411-a606-4bd3-b265-be12cfc1dfbf`.
-
-`DeliveryStatus` atomically stores event dedupe and the latest incident. Signed
-provider failures and immediate sending errors latch unhealthy until reviewed;
-a successful email or a restart cannot clear it. Application data is restricted
-to fixed failure category, environment, detection time and random revision.
-Hashed event IDs dedupe for seven days, with bounded cleanup scheduled within eight
-days. Acknowledgement removes the incident but retains dedupe so a provider retry
-does not reopen it. A newer failure changes the revision, preventing an older
-acknowledgement from clearing it. Existing contact-security state is not shared.
-
-Monitoring hardening (October 27, 2026): incident writes retry up to three times
-with fresh stubs, a three-second timeout per attempt, and an unchanged dedupe key.
-If the primary `contact-delivery` object cannot record an immediate application
-or receiver-runtime failure, the writer uses a separate `contact-delivery-fallback`
-object in the existing namespace. Both objects are checked by the unchanged
-UptimeRobot URL; either incident or an unreadable state returns 503. Receiver
-exceptions are now persisted, so a brief failure remains visible after recovery.
-Signed-provider writes remain retryable (503), with the receiver error latched
-through this fallback path. Admin status lists both incidents, and each exact
-revision must be reviewed and acknowledged separately. Clearing one cannot clear
-the other or a newer failure.
-
-This is object-level redundancy, not a second storage provider. A simultaneous
-failure of both Cloudflare objects still produces an error and sanitized log;
-an outage that prevents all writes and ends between external probes can still
-escape detection. UptimeRobot provides independent polling and email delivery,
-not a guarantee that every failure or every missing inquiry can be detected.
-
-Run `npm run test:monitoring` for local workerd tests without email or remote
-state changes. The authenticated hosted diagnostic is deliberately explicit:
-`node scripts/email-monitor-admin.mjs test --send-alert`. It rejects an existing
-incident and injects a primary-write failure only into that request, recording
-the fixed staging `monitor_self_test` issue in the real fallback. This creates an
-automatic UptimeRobot alert; verify it before acknowledging its exact revision.
-It does not send a contact email, change credentials, or enable a public fault switch.
-
-Hosted hardening verification on October 27 (October 28 UTC): the diagnostic at
-`2026-10-28T02:47:27.840Z` exhausted the intentionally unavailable primary writer
-and persisted `monitor_self_test` in the fallback. `/delivery-status` returned
-503 with an empty body while `/health` remained 200. UptimeRobot incident
-`373664311771830023` confirmed DOWN at 21:48:34 America/Chicago and recorded
-`Email sent to tim — SUCCESS` at 21:48:35. Tim confirmed receipt of this new
-automatic DOWN alert. Only test revision `e3b67c3d-7837-431f-9681-ea92cd1c1deb`
-was acknowledged; both incident slots then returned empty and the public status
-returned 200. No contact email was submitted.
-UptimeRobot confirmed recovery at 21:50:44 America/Chicago and recorded the
-recovery email as SUCCESS at 21:50:46; this incident is Resolved. The DOWN email
-has inbox confirmation; recovery email dispatch is verified in the dashboard.
-
-Deployments: production `e0e2c6f7-736d-4013-b091-55b0c071352f`, staging
-`e178c625-fbbd-4f71-bed7-a79948acbdff`, monitoring version above. Passed: 55 unit
-tests, 22 local monitoring runtime checks, 88 Cloudflare runtime/build checks,
-317 production configuration/build checks, 73 online staging checks, and 282
-live checks after clearing the diagnostic. The live check during the intentional
-incident correctly failed at the 503 probe; the post-test rerun passed.
-UptimeRobot settings, Cloudflare logging and certificate notifications, GoDaddy,
-and all email DNS were left unchanged. No DNS changes were made.
-
-To review an incident, use Node from `.nvmrc`:
-
-```bash
-node scripts/email-monitor-admin.mjs status
-# Only after investigating and resolving the reported failure:
-node scripts/email-monitor-admin.mjs acknowledge <reviewed-revision>
-```
-
-The helper reads the key from `~/.config/timgabaree-email-monitor/admin-key` (private
-directory and mode 0600 file, outside Dropbox/Git), or `MONITOR_ADMIN_KEY_FILE`.
-Never put the key in a URL, shell argument, screenshot, or notes. A 200 status means
-no unresolved *reported* failure, not proof that every inquiry reached an inbox.
-
-Earlier pre-cutover automatic alert test on October 27: UptimeRobot first reported Up. A signed,
-synthetic staging `email.failed` event at `2026-10-28T01:11:52.864Z` was accepted
-with 204, including its duplicate. `/delivery-status` became 503 while `/health`
-remained 200. UptimeRobot confirmed Down at 20:14:08 America/Chicago and recorded
-`Email sent to tim — SUCCESS` at 20:14:09 in incident `373640546293387427`.
-This was an automatic incident alert, not the manual notification-test button.
-The reviewed test revision was acknowledged; both public probes returned 200.
-A fresh signed retry of the same event remained deduplicated and did not reopen
-the incident. UptimeRobot recorded recovery at 20:17:22 America/Chicago and a
-successful recovery email at 20:17:24. The incident is Resolved. Tim explicitly
-confirmed receipt of the automatic DOWN alert at `tim@timgabaree.com` in this
-review. The failure-alert path is therefore verified end to end. Recovery email
-dispatch is recorded by UptimeRobot; separate inbox confirmation of that recovery
-email was not requested or supplied.
-
-The temporary signing-secret and read-only diagnostic-token files were deleted
-after verification. The permanent acknowledgement key remains mode 0600 outside
-Dropbox/Git. None of these three secrets appeared in Git-visible files. The
-diagnostic token itself retains its existing short expiry; deleting its local
-copy does not revoke it. During that earlier pre-cutover test, live DNS and GoDaddy
-were not changed; production was still disabled and its public workers.dev URL
-returned 404, while live PHP returned 200. The later approved cutover supersedes
-that historical access state.
-
-#### Earlier Cloudflare SQL-monitor diagnosis (historical)
-
-The following records the earlier investigation, before the persistent-status
-monitor above was implemented and its automatic DOWN alert received. The older
-SQL rule's delivery remained unverified and it is now disabled; it is not a substitute for
-the verified UptimeRobot check. References below to pending verification and
-temporary local credentials describe that earlier state.
-
-**Verification still open:** the hosted signed test generated exactly one
-sanitized log despite a duplicate request; unsigned requests returned 400 and
-health returned 200. The event is visible in Cloudflare Workers Logs, but the
-SQL monitor preview still showed zero, even in an unsaved broader diagnostic
-query. An attempted manual 15-minute query was rejected by the dashboard with
-`query already contains time predicates ... remove them to use time_range`;
-that edit was cancelled. The original scoped rule remains enabled. A native
-destination test was requested, but neither that request nor a saved rule proves
-automatic failure-alert delivery. Resolve this gap and verify recipient receipt
-before cutover. The receiver version after secret installation is
-`e107a9da-dfc5-4554-8f41-1306db183d9f`; Resend webhook ID is
-`0e765aaa-e605-42a2-90ae-99f26534c47a`. No secrets are stored in this repository.
-
-Follow-up diagnosis on October 27: the recipient confirmed both providers'
-manual test notifications. A further signed staging failure was accepted (204)
-at `2026-10-28T00:49:58.349Z`, but automatic alert delivery remains unverified.
-The Workers Real-Time Issues dataset had no records for this event, so the
-temporary issue-based rule was reverted to the original scoped Workers Logs
-rule. The existing Wrangler credential can read SQL dataset schemas, but actual
-log queries and alert history return 403. A temporary account-scoped token with
-Account Analytics Read, Workers Observability Read, and Notifications Read was
-created with explicit user approval. It has no DNS or deployment write permissions
-and expires October 28 at 20:00 America/Chicago. Its value is held in a private
-temporary file outside the repository and Dropbox, not in these notes or Git.
-The token successfully reads the actual SQL data, policy, and notification history.
-The scoped query matches the sanitized failure logs; the earlier zero preview was
-not evidence of a field/filter mismatch. Notification history distinguishes the
-manual test (sent `2026-10-28T00:46:54.61858Z`, dummy test query) from real automatic
-alerts. The account has no notification silences.
-
-Further signed staging failures were accepted (204) at
-`2026-10-28T00:55:29.374Z`, `2026-10-28T00:57:57.409Z`, and
-`2026-10-28T01:00:27.722Z`. The query and preview detect these events, but that alone
-does not verify scheduled notification delivery. Diagnostic rule changes compare
-the average result against `> 0` over 15 minutes, with a five-minute execution
-interval to widen the automatic query lookback. The repeat interval was temporarily
-shortened during testing to rule out suppression from the manual test, then restored
-to one hour. At `2026-10-28T01:05:55.552Z`, notification history still contained only
-the manual test, despite multiple matching failure records and no account silences.
-A quiet baseline (`00:52–00:54Z`) returned zero; the isolated `01:00–01:01Z` failure
-returned one. This establishes matching, not automatic delivery. The scheduled
-notification path remains unresolved; do not describe this diagnostic rule as a
-verified fix. Automatic alert verification remains an open cutover gate until a
-real scheduled notification is recorded and received. Consider Cloudflare support
-or, with user approval, a persistent failure-status signal checked by UptimeRobot
-on the separate monitoring Worker, independent of SQL-log alert evaluation.
-
-The temporary webhook-signing-secret copy was removed after testing. Both secret
-values were checked against Git-visible files with no matches. The restricted
-read-only token remains private outside the repository until its short expiry.
-No code deployment, DNS, GoDaddy, or production-access changes were made in this
-follow-up. The deployed production version still has `PRODUCTION_ENABLED=false`;
-its public workers.dev URL returns 404. All 177 production configuration/build
-checks and 10 focused email-monitor tests passed again.
-
-Tests cover signatures, tampering, stale/future timestamps, bounds, deduplication,
-privacy, and adapter failures. A signed synthetic hosted failure tests our
-receiver, not Resend's real delivery pipeline. Monitoring detects reported
-failures; API acceptance, absence of alerts, and even delivery events do not
-prove inbox placement or that a person read the message. `/health` checks
-configuration presence, not Resend credentials or inbox delivery. Retain the
-approved real-domain contact test as a cutover gate.
 
 ### Completed review and post-launch follow-up
 
@@ -606,7 +379,7 @@ and rejected TLS 1.1 with a server protocol-version alert. No TLS setting was
 changed during this refresh.
 
 The approved cutover and real-domain email gate are complete, as recorded above.
-Keep monitoring enabled and review Cloudflare/Resend usage as traffic develops.
+Review Cloudflare/Resend usage as traffic develops.
 Phone testing remains explicitly deferred; contact-conversion reporting is now
 configured above, while a fuller analytics network/cookie audit is separate. No new
 scheduled automation was created by the cutover. Privacy disclosures describe
@@ -696,9 +469,9 @@ before/after review preserved layout and QR spacing. A 390x812 phone preview had
 no horizontal overflow and selected the 600-wide portrait. The QR link has one
 keyboard stop on both pages; Enter opened the contact page on the homepage test.
 Staging was built/tested locally but not redeployed in this performance pass.
-No contact email, DNS, GoDaddy, analytics-consent, or monitoring-settings changes
-were made. These changes and the monitoring hardening are included in the
-user-approved GitHub source-control release; pushing source does not redeploy.
+No contact email, DNS, GoDaddy or analytics-consent changes were made.
+These website changes are included in the user-approved GitHub source-control
+release; pushing source does not redeploy.
 
 ## Project structure
 
