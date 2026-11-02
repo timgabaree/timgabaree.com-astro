@@ -1,4 +1,5 @@
 ---
+import FamilySites from './FamilySites.astro';
 interface Props {
   page: string;
 }
@@ -17,4 +18,5 @@ const currentYear = new Date().getFullYear();
   <p class="footer-disclaimer">
     Copyright © 2023–{currentYear} Tim Gabaree. All Rights Reserved.
   </p>
+  <FamilySites />
 </footer>
