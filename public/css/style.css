@@ -3458,10 +3458,14 @@ button.contact-action {
   border: 0;
   padding: 12px 2px;
   background: none;
-  color: inherit;
+  color: var(--accent-color);
   font: inherit;
-  text-decoration: underline;
+  text-decoration: none;
   cursor: pointer;
+}
+.privacy-choices-link:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
 }
 .scheduling-open { overflow: hidden; }
 .scheduling-dialog {
