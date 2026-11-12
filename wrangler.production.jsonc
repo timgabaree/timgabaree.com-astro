@@ -7,8 +7,14 @@
   "workers_dev": false,
   "preview_urls": false,
   "routes": [
-    { "pattern": "timgabaree.com", "custom_domain": true },
-    { "pattern": "www.timgabaree.com", "custom_domain": true }
+    {
+      "pattern": "timgabaree.com",
+      "custom_domain": true
+    },
+    {
+      "pattern": "www.timgabaree.com",
+      "custom_domain": true
+    }
   ],
   "assets": {
     "directory": "./dist-production",
@@ -24,10 +30,37 @@
   },
   "durable_objects": {
     "bindings": [
-      { "name": "CONTACT_STATE", "class_name": "ContactState" },
-      { "name": "DELIVERY_STATUS", "class_name": "DeliveryStatus", "script_name": "timgabaree-com-astro-email-monitor" }
+      {
+        "name": "CONTACT_STATE",
+        "class_name": "ContactState"
+      },
+      {
+        "name": "DELIVERY_STATUS",
+        "class_name": "DeliveryStatus",
+        "script_name": "timgabaree-com-astro-email-monitor"
+      }
     ]
   },
-  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["ContactState"] }],
-  "observability": { "enabled": true, "head_sampling_rate": 1, "logs": { "invocation_logs": false } }
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "ContactState"
+      ]
+    }
+  ],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+    "logs": {
+      "invocation_logs": false
+    }
+  },
+  "d1_databases": [
+    {
+      "binding": "GEO_DB",
+      "database_name": "family-site-traffic",
+      "database_id": "f68d949c-53f7-474b-b48e-2ebda8422994"
+    }
+  ]
 }
