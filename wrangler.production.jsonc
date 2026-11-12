@@ -62,5 +62,10 @@
       "database_name": "family-site-traffic",
       "database_id": "f68d949c-53f7-474b-b48e-2ebda8422994"
     }
-  ]
+  ],
+  "triggers": {
+    "crons": [
+      "0,15,30,45 13,14 * * *"
+    ]
+  }
 }

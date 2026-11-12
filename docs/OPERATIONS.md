@@ -151,3 +151,9 @@ Retain GoDaddy files, addon-domain mapping and shared Web Hosting Deluxe account
 `rgesol.com` is the primary domain; other sites depend on that account.
 No deletion, hosting cancellation, email-DNS change or rollback is authorized
 by an ordinary documentation or source-control update.
+
+### Daily family traffic email
+
+The production Worker runs the family traffic digest at 08:00 America/Chicago. Its UTC cron checks both DST offsets every 15 minutes; the handler only sends during the local 08:00 hour. Later checks retry failures. `traffic_email_delivery` in `family-site-traffic` stores a stable pending payload and a sent receipt. The provider idempotency key is the report date, preventing duplicate sends on retries. The recipient is fixed to tim@timgabaree.com and the sender uses existing `CONTACT_FROM` and `RESEND_API_KEY` secrets. No local Mac, Gmail connector, or Codex schedule is required.
+
+Apply `migrations/traffic-email-delivery.sql` to the traffic database before publishing. Configure the cron through the schedules API separately from the version-only website release; do not redeploy dashboard-managed routes. Cron configuration is also recorded in `wrangler.production.jsonc`. First-day coverage is marked partial. All dates use the previous Central calendar day, including DST transitions.

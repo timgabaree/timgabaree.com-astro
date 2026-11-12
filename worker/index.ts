@@ -1,3 +1,4 @@
+import {sendDaily} from './traffic-email.ts';
 import {queueTraffic} from './geo-traffic.ts';
 import { handleContact } from './contact.ts';
 import type { Env } from './contact.ts';
@@ -107,6 +108,7 @@ async function route(request: Request, env: Env): Promise<Response> {
 }
 
 export default {
+  async scheduled(event:ScheduledController,env:Env,ctx:ExecutionContext){ctx.waitUntil(sendDaily(env,new Date(event.scheduledTime)).catch(error=>{console.error(JSON.stringify({event:"traffic_daily_email_failed",message:String(error.message)}));throw error;}));},
   async fetch(request: Request, env: Env, ctx?: ExecutionContext): Promise<Response> {
     try { const response=secure(await route(request, env), request, env); queueTraffic(request,response,env,ctx); return response; }
     catch {
