@@ -6,7 +6,7 @@ const source = name => readFile(new URL(`../src/pages/${name}.astro`, import.met
 
 test('homepage leads with practical leadership and preserves financial qualifiers', async () => {
   const home = await source('index');
-  assert.match(home, /Bringing people, technology, and business priorities together\./);
+  assert.ok(home.includes('I lead IT teams, improve the services people rely on, and help executives decide where to invest in technology. When a critical program gets off track, I work with the people responsible to get it delivering again.'));
   assert.match(home, /Identified \$25 million in projected savings/);
   assert.match(home, /Identified \$1\.5 million in duplicate vendor spend/);
   assert.match(home, /Résumé &amp; Executive Documents/);
