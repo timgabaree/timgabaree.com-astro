@@ -19,3 +19,31 @@ const {raw,env}=fixture();let body;await assert.rejects(sendDaily(env,new Date('
 await sendDaily(env,new Date('2026-11-13T14:15:00Z'),async(u,o)=>{assert.equal(o.body,body);return Response.json({id:'receipt-2'})});
 assert.equal((await sendDaily(env,new Date('2026-11-13T13:00:00Z'),()=>{throw Error('must not send')})).status,'outside-window');raw.close();
 });
+
+test('HTML tables preserve category totals and link each site to Cloudflare',async()=>{
+ const {renderDailyReport,analyticsLink}=await import('../worker/traffic-email-template.ts');
+ const sites=['timgabaree.com','carriegabaree.com','rgesol.com','finngabaree.com','clintgabaree.com'];
+ const values=[[246,1648,13,27],[117,1657,3,67],[192,1632,14,20],[43,1343,0,9],[75,1345,4,13]];
+ const categories=['browser_like','verified_bot','suspected_automation','unclassified'];
+ const report=renderDailyReport({day:'2026-11-15',start:'2026-11-15T06:00:00.000Z',end:'2026-11-16T06:00:00.000Z',coverageNote:'',counts:sites.flatMap((site,i)=>categories.map((category,j)=>({site,category,requests:values[i][j]}))),pages:[{site:sites[0],path:'/<script>?q="&',requests:166}],locations:[{city:'London',region:'England',country:'GB',requests:74}],devices:[{browser:'Chrome',device:'Desktop',requests:328}]});
+ assert.match(report.html,/>8,468<\/a>/);
+ assert.match(report.html,/>673<\/a>/);
+ assert.match(report.html,/7\.9% of recorded requests/);
+ assert.match(report.html,/48\.7%/);
+ assert.equal((report.html.match(/<thead>/g)||[]).length,4);
+ assert.match(report.html,/<th scope="col"/);
+ for(const site of sites)assert.ok(report.html.includes(`href="${analyticsLink(site)}"`));
+ assert.match(report.html,/&lt;script&gt;\?q=&quot;&amp;/);
+ assert.doesNotMatch(report.html,/<script>/);
+ assert.match(report.html,/do not preset the date/);
+ assert.match(report.text,/timgabaree.com: 246 \| 1,648 \| 13 \| 27 \| 1,934/);
+ assert.equal(analyticsLink('evil.example/"'),analyticsLink());
+});
+test('empty days and partial coverage remain clear without invalid percentages',async()=>{
+ const {renderDailyReport}=await import('../worker/traffic-email-template.ts');
+ const report=renderDailyReport({day:'2026-11-15',start:'start',end:'end',coverageNote:'Coverage note: partial <day>',counts:[],pages:[],locations:[],devices:[]});
+ assert.doesNotMatch(report.html,/NaN|Infinity/);
+ assert.match(report.html,/Coverage note: partial &lt;day&gt;/);
+ assert.equal((report.html.match(/No recorded browser-like requests\./g)||[]).length,3);
+ assert.match(report.text,/0 recorded page requests; 0 browser-like/);
+});
